@@ -30,4 +30,4 @@ The default database is `contextvault.db`. Override it with `CONTEXTVAULT_DB`.
 - `GET /files`
 - `POST /queries`
 
-The current ingestion endpoint accepts extracted text as JSON. File upload, OCR, embeddings, Jev integration, authentication, and background jobs are intentionally deferred until the baseline behaviour is measured.
+The current ingestion endpoint accepts extracted text as JSON or uploads UTF-8 `.txt`, `.md`, `.csv`, and `.json` files. Uploaded bytes are retained in a local content-addressed store and linked from the file record. PDF/OCR, embeddings, Jev integration, authentication, and background jobs are intentionally deferred until the baseline behaviour is measured.

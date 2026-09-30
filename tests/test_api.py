@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from fastapi.testclient import TestClient
 
 from app.main import create_app
@@ -58,7 +60,9 @@ def test_text_file_upload_and_query(tmp_path):
     )
 
     assert response.status_code == 201
-    assert response.json()["name"] == "x200-calibration.txt"
+    body = response.json()
+    assert body["name"] == "x200-calibration.txt"
+    assert Path(body["source_uri"]).read_bytes() == b"If calibration fails, inspect the vacuum sensor before retrying."
 
     response = client.post(
         "/queries",

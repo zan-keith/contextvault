@@ -21,10 +21,9 @@ class Database:
 
     def _initialise(self) -> None:
         with self._connect() as connection:
+            connection.execute("PRAGMA foreign_keys = ON")
             connection.executescript(
                 """
-                PRAGMA foreign_keys = ON;
-
                 CREATE TABLE IF NOT EXISTS files (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name TEXT NOT NULL,
@@ -33,6 +32,10 @@ class Database:
                     version TEXT,
                     document_type TEXT NOT NULL,
                     status TEXT NOT NULL DEFAULT 'active',
+                    source_uri TEXT,
+                    sha256 TEXT,
+                    size_bytes INTEGER,
+                    media_type TEXT,
                     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
                 );
 
@@ -55,6 +58,15 @@ class Database:
                 );
                 """
             )
+            columns = {row[1] for row in connection.execute("PRAGMA table_info(files)")}
+            for column, definition in {
+                "source_uri": "TEXT",
+                "sha256": "TEXT",
+                "size_bytes": "INTEGER",
+                "media_type": "TEXT",
+            }.items():
+                if column not in columns:
+                    connection.execute(f"ALTER TABLE files ADD COLUMN {column} {definition}")
 
     @staticmethod
     def _chunks(content: str, max_chars: int = 900) -> list[str]:
@@ -80,15 +92,32 @@ class Database:
         version: str | None,
         document_type: str,
         status: str,
+        source_uri: str | None = None,
+        sha256: str | None = None,
+        size_bytes: int | None = None,
+        media_type: str | None = None,
     ) -> dict[str, Any]:
         chunks = self._chunks(content)
         with self._connect() as connection:
             cursor = connection.execute(
                 """
-                INSERT INTO files (name, description, product, version, document_type, status)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO files
+                    (name, description, product, version, document_type, status,
+                     source_uri, sha256, size_bytes, media_type)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (name, description, product, version, document_type, status),
+                (
+                    name,
+                    description,
+                    product,
+                    version,
+                    document_type,
+                    status,
+                    source_uri,
+                    sha256,
+                    size_bytes,
+                    media_type,
+                ),
             )
             file_id = cursor.lastrowid
             for ordinal, text in enumerate(chunks):

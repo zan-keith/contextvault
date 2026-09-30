@@ -7,6 +7,7 @@ from fastapi import Depends, File, FastAPI, Form, HTTPException, Request, Upload
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.db import Database
+from app.storage import FileStore
 
 
 class FileCreate(BaseModel):
@@ -41,6 +42,10 @@ def create_app(database_path: str | Path | None = None) -> FastAPI:
     app = FastAPI(title="ContextVault", version="0.1.0")
     db_path = database_path or os.getenv("CONTEXTVAULT_DB", "contextvault.db")
     app.state.database = Database(db_path)
+    storage_root = os.getenv("CONTEXTVAULT_STORAGE_DIR")
+    if storage_root is None:
+        storage_root = str(Path(db_path).with_suffix(".files"))
+    app.state.file_store = FileStore(storage_root)
 
     def database(request: Request) -> Database:
         return request.app.state.database
@@ -55,6 +60,7 @@ def create_app(database_path: str | Path | None = None) -> FastAPI:
 
     @app.post("/files/upload", status_code=status.HTTP_201_CREATED)
     async def upload_file(
+        request: Request,
         file: UploadFile = File(...),
         description: str = Form(...),
         product: str | None = Form(default=None),
@@ -82,6 +88,7 @@ def create_app(database_path: str | Path | None = None) -> FastAPI:
         if not content.strip():
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="File is empty")
 
+        stored = request.app.state.file_store.save(file.filename or "uploaded-file", raw_content)
         payload = FileCreate(
             name=file.filename or "uploaded-file",
             description=description,
@@ -91,7 +98,11 @@ def create_app(database_path: str | Path | None = None) -> FastAPI:
             document_type=document_type,
             status=file_status,
         )
-        return db.create_file(**payload.model_dump())
+        return db.create_file(
+            **payload.model_dump(),
+            **stored,
+            media_type=file.content_type,
+        )
 
     @app.get("/files")
     def search_files(
