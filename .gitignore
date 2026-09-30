@@ -6,5 +6,6 @@ __pycache__/
 *.db
 *.sqlite
 *.sqlite3
+*.egg-info/
 .env
 .DS_Store
