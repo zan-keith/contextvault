@@ -1,0 +1,80 @@
+from __future__ import annotations
+
+import os
+from pathlib import Path
+from fastapi import Depends, FastAPI, Request, status
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from app.db import Database
+
+
+class FileCreate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    name: str = Field(min_length=1, max_length=300)
+    description: str = Field(min_length=1, max_length=2000)
+    content: str = Field(min_length=1)
+    product: str | None = Field(default=None, max_length=200)
+    version: str | None = Field(default=None, max_length=100)
+    document_type: str = Field(min_length=1, max_length=100)
+    status: str = Field(default="active", pattern="^(active|archived|superseded|restricted)$")
+
+
+class QueryCreate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    question: str = Field(min_length=1, max_length=2000)
+    product: str | None = Field(default=None, max_length=200)
+    version: str | None = Field(default=None, max_length=100)
+    limit: int = Field(default=5, ge=1, le=20)
+
+    @field_validator("question")
+    @classmethod
+    def question_must_not_be_blank(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("question must not be blank")
+        return value
+
+
+def create_app(database_path: str | Path | None = None) -> FastAPI:
+    app = FastAPI(title="ContextVault", version="0.1.0")
+    db_path = database_path or os.getenv("CONTEXTVAULT_DB", "contextvault.db")
+    app.state.database = Database(db_path)
+
+    def database(request: Request) -> Database:
+        return request.app.state.database
+
+    @app.get("/health")
+    def health() -> dict[str, str]:
+        return {"status": "ok"}
+
+    @app.post("/files", status_code=status.HTTP_201_CREATED)
+    def create_file(payload: FileCreate, db: Database = Depends(database)) -> dict:
+        return db.create_file(**payload.model_dump())
+
+    @app.get("/files")
+    def search_files(
+        request: Request,
+        q: str,
+        product: str | None = None,
+        version: str | None = None,
+        limit: int = 10,
+    ) -> dict:
+        return {"query": q, "results": database(request).search(q, product=product, version=version, limit=limit)}
+
+    @app.post("/queries")
+    def query(payload: QueryCreate, db: Database = Depends(database)) -> dict:
+        return {
+            "query": payload.question,
+            "results": db.search(
+                payload.question,
+                product=payload.product,
+                version=payload.version,
+                limit=payload.limit,
+            ),
+        }
+
+    return app
+
+
+app = create_app()
