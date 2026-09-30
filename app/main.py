@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from fastapi import Depends, FastAPI, Request, status
+
+from fastapi import Depends, File, FastAPI, Form, HTTPException, Request, UploadFile, status
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.db import Database
@@ -50,6 +51,46 @@ def create_app(database_path: str | Path | None = None) -> FastAPI:
 
     @app.post("/files", status_code=status.HTTP_201_CREATED)
     def create_file(payload: FileCreate, db: Database = Depends(database)) -> dict:
+        return db.create_file(**payload.model_dump())
+
+    @app.post("/files/upload", status_code=status.HTTP_201_CREATED)
+    async def upload_file(
+        file: UploadFile = File(...),
+        description: str = Form(...),
+        product: str | None = Form(default=None),
+        version: str | None = Form(default=None),
+        document_type: str = Form(...),
+        file_status: str = Form(default="active", alias="status"),
+        db: Database = Depends(database),
+    ) -> dict:
+        allowed_extensions = {".txt", ".md", ".csv", ".json"}
+        extension = Path(file.filename or "").suffix.lower()
+        if extension not in allowed_extensions:
+            raise HTTPException(
+                status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+                detail="Only .txt, .md, .csv, and .json files are supported in this slice",
+            )
+
+        raw_content = await file.read()
+        try:
+            content = raw_content.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+                detail="Uploaded text must be UTF-8 encoded",
+            ) from exc
+        if not content.strip():
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="File is empty")
+
+        payload = FileCreate(
+            name=file.filename or "uploaded-file",
+            description=description,
+            content=content,
+            product=product,
+            version=version,
+            document_type=document_type,
+            status=file_status,
+        )
         return db.create_file(**payload.model_dump())
 
     @app.get("/files")
