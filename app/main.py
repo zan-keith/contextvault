@@ -7,6 +7,7 @@ from fastapi import Depends, File, FastAPI, Form, HTTPException, Request, Upload
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.db import Database
+from app.extract import UnsupportedDocument, extract_text
 from app.storage import FileStore
 
 
@@ -69,24 +70,22 @@ def create_app(database_path: str | Path | None = None) -> FastAPI:
         file_status: str = Form(default="active", alias="status"),
         db: Database = Depends(database),
     ) -> dict:
-        allowed_extensions = {".txt", ".md", ".csv", ".json"}
+        allowed_extensions = {".txt", ".md", ".csv", ".json", ".pdf"}
         extension = Path(file.filename or "").suffix.lower()
         if extension not in allowed_extensions:
             raise HTTPException(
                 status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-                detail="Only .txt, .md, .csv, and .json files are supported in this slice",
+                detail="Only .txt, .md, .csv, .json, and .pdf files are supported in this slice",
             )
 
         raw_content = await file.read()
         try:
-            content = raw_content.decode("utf-8")
-        except UnicodeDecodeError as exc:
+            content = extract_text(file.filename or "uploaded-file", raw_content)
+        except UnsupportedDocument as exc:
             raise HTTPException(
-                status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-                detail="Uploaded text must be UTF-8 encoded",
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=str(exc),
             ) from exc
-        if not content.strip():
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="File is empty")
 
         stored = request.app.state.file_store.save(file.filename or "uploaded-file", raw_content)
         payload = FileCreate(
