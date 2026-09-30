@@ -83,7 +83,7 @@ def create_app(database_path: str | Path | None = None) -> FastAPI:
             content = extract_text(file.filename or "uploaded-file", raw_content)
         except UnsupportedDocument as exc:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=422,
                 detail=str(exc),
             ) from exc
 
