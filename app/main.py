@@ -7,6 +7,7 @@ from fastapi import Depends, File, FastAPI, Form, HTTPException, Request, Upload
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.db import Database
+from app.decisions import DecisionProvider, provider_from_environment
 from app.extract import UnsupportedDocument, extract_text
 from app.storage import FileStore
 
@@ -29,6 +30,7 @@ class QueryCreate(BaseModel):
     question: str = Field(min_length=1, max_length=2000)
     product: str | None = Field(default=None, max_length=200)
     version: str | None = Field(default=None, max_length=100)
+    document_type: str | None = Field(default=None, max_length=100)
     limit: int = Field(default=5, ge=1, le=20)
 
     @field_validator("question")
@@ -39,7 +41,10 @@ class QueryCreate(BaseModel):
         return value
 
 
-def create_app(database_path: str | Path | None = None) -> FastAPI:
+def create_app(
+    database_path: str | Path | None = None,
+    decision_provider: DecisionProvider | None = None,
+) -> FastAPI:
     app = FastAPI(title="ContextVault", version="0.1.0")
     db_path = database_path or os.getenv("CONTEXTVAULT_DB", "contextvault.db")
     app.state.database = Database(db_path)
@@ -47,9 +52,13 @@ def create_app(database_path: str | Path | None = None) -> FastAPI:
     if storage_root is None:
         storage_root = str(Path(db_path).with_suffix(".files"))
     app.state.file_store = FileStore(storage_root)
+    app.state.decision_provider = decision_provider or provider_from_environment()
 
     def database(request: Request) -> Database:
         return request.app.state.database
+
+    def get_decision_provider(request: Request) -> DecisionProvider:
+        return request.app.state.decision_provider
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -109,20 +118,43 @@ def create_app(database_path: str | Path | None = None) -> FastAPI:
         q: str,
         product: str | None = None,
         version: str | None = None,
+        document_type: str | None = None,
         limit: int = 10,
     ) -> dict:
-        return {"query": q, "results": database(request).search(q, product=product, version=version, limit=limit)}
+        return {
+            "query": q,
+            "results": database(request).search(
+                q,
+                product=product,
+                version=version,
+                document_type=document_type,
+                limit=limit,
+            ),
+        }
 
     @app.post("/queries")
-    def query(payload: QueryCreate, db: Database = Depends(database)) -> dict:
+    async def query(
+        payload: QueryCreate,
+        db: Database = Depends(database),
+        provider: DecisionProvider = Depends(get_decision_provider),
+    ) -> dict:
+        results = db.search(
+            payload.question,
+            product=payload.product,
+            version=payload.version,
+            document_type=payload.document_type,
+            limit=payload.limit,
+        )
+        decision = await provider.evaluate(payload.question, results)
         return {
             "query": payload.question,
-            "results": db.search(
-                payload.question,
-                product=payload.product,
-                version=payload.version,
-                limit=payload.limit,
-            ),
+            "decision": {
+                "outcome": decision.outcome,
+                "confidence": decision.confidence,
+                "reasons": decision.reasons,
+                "provider": decision.provider,
+            },
+            "results": results,
         }
 
     return app

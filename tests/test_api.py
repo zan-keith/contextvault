@@ -34,6 +34,8 @@ def test_file_ingestion_and_query_round_trip(tmp_path):
     assert body["query"] == "How do I investigate a vacuum alarm?"
     assert body["results"][0]["name"] == "x200-maintenance.txt"
     assert body["results"][0]["product"] == "X200"
+    assert body["decision"]["provider"] == "rules"
+    assert body["decision"]["outcome"] == "answerable"
 
 
 
