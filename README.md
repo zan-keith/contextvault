@@ -6,9 +6,10 @@ The first slice deliberately uses:
 
 - FastAPI for the HTTP API
 - SQLite FTS5 for a transparent retrieval baseline
+- FastEmbed local embeddings for hybrid reranking
 - deterministic metadata filters for product, version, and status
 - paragraph-preserving chunks with source references
-- tests that establish retrieval behaviour before adding embeddings or Jev
+- tests and benchmarks that establish retrieval behaviour before adding a remote model provider
 
 The intended later architecture is hybrid retrieval plus a replaceable semantic decision provider. Jev is an optional reranking/answerability component, not the database or the primary retriever.
 
@@ -24,7 +25,8 @@ uvicorn app.main:app --reload
 The default database is `contextvault.db`. Override it with `CONTEXTVAULT_DB`.
 
 ```bash
-uv run python -m benchmarks.run
+uv run python -m benchmarks.run --strategy fts
+uv run python -m benchmarks.run --strategy hybrid
 ```
 
 The app uses the rules decision provider by default. Set `TYPESAFE_API_KEY` to enable the Jev adapter; it automatically falls back to rules if the external provider is unavailable. Never commit that key.

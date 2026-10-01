@@ -197,3 +197,44 @@ class Database:
         with self._connect() as connection:
             rows = connection.execute(sql, parameters).fetchall()
         return [dict(row) for row in rows]
+
+    def active_candidates(
+        self,
+        *,
+        product: str | None = None,
+        version: str | None = None,
+        document_type: str | None = None,
+        limit: int = 1000,
+    ) -> list[dict[str, Any]]:
+        clauses = ["files.status = 'active'"]
+        parameters: list[Any] = []
+        if product:
+            clauses.append("files.product = ?")
+            parameters.append(product)
+        if version:
+            clauses.append("files.version = ?")
+            parameters.append(version)
+        if document_type:
+            clauses.append("files.document_type = ?")
+            parameters.append(document_type)
+        parameters.append(max(1, min(limit, 5000)))
+        sql = f"""
+            SELECT
+                files.id AS file_id,
+                chunks.id AS chunk_id,
+                files.name AS name,
+                files.description AS description,
+                chunks.text AS text,
+                files.product AS product,
+                files.version AS version,
+                files.status AS status,
+                files.document_type AS document_type
+            FROM chunks
+            JOIN files ON files.id = chunks.file_id
+            WHERE {' AND '.join(clauses)}
+            ORDER BY files.id, chunks.ordinal
+            LIMIT ?
+        """
+        with self._connect() as connection:
+            rows = connection.execute(sql, parameters).fetchall()
+        return [dict(row) for row in rows]

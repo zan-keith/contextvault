@@ -8,6 +8,7 @@ from statistics import mean
 from typing import Any
 
 from app.db import Database
+from app.retrieval import FastEmbedProvider, HybridRetriever
 
 
 ROOT = Path(__file__).parent
@@ -18,23 +19,40 @@ def load_json(path: Path) -> list[dict[str, Any]]:
         return json.load(handle)
 
 
-def run_benchmark(corpus_path: Path = ROOT / "corpus.json", queries_path: Path = ROOT / "queries.json", limit: int = 5) -> dict[str, Any]:
+def run_benchmark(
+    corpus_path: Path = ROOT / "corpus.json",
+    queries_path: Path = ROOT / "queries.json",
+    limit: int = 5,
+    strategy: str = "fts",
+) -> dict[str, Any]:
+    if strategy not in {"fts", "hybrid"}:
+        raise ValueError("strategy must be 'fts' or 'hybrid'")
     corpus = load_json(corpus_path)
     queries = load_json(queries_path)
     with tempfile.TemporaryDirectory(prefix="contextvault-benchmark-") as directory:
         db = Database(Path(directory) / "benchmark.db")
         for document in corpus:
             db.create_file(**document)
+        hybrid_retriever = HybridRetriever(db, FastEmbedProvider()) if strategy == "hybrid" else None
 
         rows = []
         for case in queries:
-            results = db.search(
-                case["question"],
-                product=case.get("product"),
-                version=case.get("version"),
-                document_type=case.get("document_type"),
-                limit=limit,
-            )
+            if hybrid_retriever is not None:
+                results = hybrid_retriever.search(
+                    case["question"],
+                    product=case.get("product"),
+                    version=case.get("version"),
+                    document_type=case.get("document_type"),
+                    limit=limit,
+                )
+            else:
+                results = db.search(
+                    case["question"],
+                    product=case.get("product"),
+                    version=case.get("version"),
+                    document_type=case.get("document_type"),
+                    limit=limit,
+                )
             expected = set(case["expected_files"])
             names = [result["name"] for result in results]
             hits = [name for name in names if name in expected]
@@ -56,7 +74,7 @@ def run_benchmark(corpus_path: Path = ROOT / "corpus.json", queries_path: Path =
             )
 
     return {
-        "strategy": "fts_plus_metadata_filters",
+        "strategy": strategy,
         "k": limit,
         "queries": len(rows),
         "hit_rate": mean(row["hit"] for row in rows) if rows else 0.0,
@@ -75,8 +93,9 @@ def main() -> None:
     parser.add_argument("--corpus", type=Path, default=ROOT / "corpus.json")
     parser.add_argument("--queries", type=Path, default=ROOT / "queries.json")
     parser.add_argument("--limit", type=int, default=5)
+    parser.add_argument("--strategy", choices=("fts", "hybrid"), default="fts")
     args = parser.parse_args()
-    print(json.dumps(run_benchmark(args.corpus, args.queries, args.limit), indent=2))
+    print(json.dumps(run_benchmark(args.corpus, args.queries, args.limit, args.strategy), indent=2))
 
 
 if __name__ == "__main__":
