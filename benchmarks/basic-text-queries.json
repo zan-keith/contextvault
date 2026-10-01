@@ -8,7 +8,8 @@
     "document_type": "runbook",
     "expected_files": [
       "billing-retry-runbook.txt"
-    ]
+    ],
+    "expected_outcome": "answerable"
   },
   {
     "id": "paraphrase-payment-outage",
@@ -19,7 +20,8 @@
     "document_type": "runbook",
     "expected_files": [
       "billing-retry-runbook.txt"
-    ]
+    ],
+    "expected_outcome": "answerable"
   },
   {
     "id": "paraphrase-certificate",
@@ -30,7 +32,8 @@
     "document_type": "runbook",
     "expected_files": [
       "web-tls-deployment.txt"
-    ]
+    ],
+    "expected_outcome": "answerable"
   },
   {
     "id": "paraphrase-login",
@@ -41,7 +44,8 @@
     "document_type": "runbook",
     "expected_files": [
       "identity-password-reset.txt"
-    ]
+    ],
+    "expected_outcome": "answerable"
   },
   {
     "id": "policy-question",
@@ -52,7 +56,8 @@
     "document_type": "policy",
     "expected_files": [
       "people-leave-policy.txt"
-    ]
+    ],
+    "expected_outcome": "answerable"
   },
   {
     "id": "metadata-boundary",
@@ -63,12 +68,14 @@
     "document_type": "runbook",
     "expected_files": [
       "billing-retry-runbook.txt"
-    ]
+    ],
+    "expected_outcome": "answerable"
   },
   {
     "id": "no-answer",
     "kind": "no-answer",
     "question": "What is the recipe for sourdough bread?",
-    "expected_files": []
+    "expected_files": [],
+    "expected_outcome": "insufficient_evidence"
   }
 ]

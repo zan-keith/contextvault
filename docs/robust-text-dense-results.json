@@ -1,21 +1,32 @@
 {
   "strategy": "dense",
   "k": 5,
-  "queries": 12,
-  "hit_rate": 0.75,
-  "precision_at_k": 0.6666666666666666,
-  "recall_at_k": 0.8333333333333334,
-  "mrr": 0.75,
-  "no_answer_accuracy": 0.3333333333333333,
-  "decision_provider": null,
-  "decision_accuracy_against_evidence": null,
-  "end_to_end_decision_accuracy": null,
+  "queries": 16,
+  "answerable_queries": 8,
+  "retrieval_hit_rate_answerable": 1,
+  "retrieval_precision_at_k_answerable": 0.75,
+  "retrieval_recall_at_k_answerable": 1.0,
+  "retrieval_mrr_answerable": 1.0,
+  "no_answer_queries": 7,
+  "no_answer_empty_result_rate": 0.14285714285714285,
+  "review_queries": 1,
+  "decision_providers_observed": null,
+  "decision_configuration": null,
+  "decision_failure_rate": null,
+  "decision_latency_p50_ms": null,
+  "decision_latency_p95_ms": null,
+  "decision_usage_cases": 0,
+  "decision_input_tokens_total": null,
+  "decision_cost_usd_total": null,
+  "end_to_end_outcome_accuracy": null,
   "cases": [
     {
+      "case_id": "payment-network-paraphrase",
       "question": "What should happen to a card charge when the banking network cannot be reached?",
       "expected_files": [
         "finance-capture-outage.txt"
       ],
+      "expected_outcome": "answerable",
       "retrieved_files": [
         "finance-capture-outage.txt",
         "finance-duplicate-invoice.txt"
@@ -28,14 +39,21 @@
       "reciprocal_rank": 1.0,
       "decision_provider": null,
       "decision_outcome": null,
-      "decision_correct_against_evidence": null,
-      "end_to_end_decision_correct": null
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     },
     {
+      "case_id": "duplicate-bill",
       "question": "How should support investigate a customer billed twice?",
       "expected_files": [
         "finance-duplicate-invoice.txt"
       ],
+      "expected_outcome": "answerable",
       "retrieved_files": [
         "finance-duplicate-invoice.txt",
         "finance-capture-outage.txt"
@@ -48,14 +66,21 @@
       "reciprocal_rank": 1.0,
       "decision_provider": null,
       "decision_outcome": null,
-      "decision_correct_against_evidence": null,
-      "end_to_end_decision_correct": null
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     },
     {
+      "case_id": "certificate-paraphrase",
       "question": "How do I replace the cryptographic certificate used by our public website?",
       "expected_files": [
         "web-certificate-rotation.txt"
       ],
+      "expected_outcome": "answerable",
       "retrieved_files": [
         "web-certificate-rotation.txt",
         "web-deployment-rollback.txt"
@@ -68,14 +93,21 @@
       "reciprocal_rank": 1.0,
       "decision_provider": null,
       "decision_outcome": null,
-      "decision_correct_against_evidence": null,
-      "end_to_end_decision_correct": null
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     },
     {
+      "case_id": "bad-release",
       "question": "What is the safe response when a new website release causes many errors?",
       "expected_files": [
         "web-deployment-rollback.txt"
       ],
+      "expected_outcome": "answerable",
       "retrieved_files": [
         "web-deployment-rollback.txt",
         "web-certificate-rotation.txt"
@@ -88,14 +120,21 @@
       "reciprocal_rank": 1.0,
       "decision_provider": null,
       "decision_outcome": null,
-      "decision_correct_against_evidence": null,
-      "end_to_end_decision_correct": null
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     },
     {
+      "case_id": "lost-second-factor",
       "question": "A user changed phones and cannot provide their login verification code. What recovery process applies?",
       "expected_files": [
         "identity-mfa-recovery.txt"
       ],
+      "expected_outcome": "answerable",
       "retrieved_files": [
         "identity-mfa-recovery.txt"
       ],
@@ -107,14 +146,21 @@
       "reciprocal_rank": 1.0,
       "decision_provider": null,
       "decision_outcome": null,
-      "decision_correct_against_evidence": null,
-      "end_to_end_decision_correct": null
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     },
     {
+      "case_id": "leave-carryover",
       "question": "Can staff take unused holiday entitlement into another year?",
       "expected_files": [
         "people-leave-carryover.txt"
       ],
+      "expected_outcome": "answerable",
       "retrieved_files": [
         "people-leave-carryover.txt"
       ],
@@ -126,14 +172,21 @@
       "reciprocal_rank": 1.0,
       "decision_provider": null,
       "decision_outcome": null,
-      "decision_correct_against_evidence": null,
-      "end_to_end_decision_correct": null
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     },
     {
+      "case_id": "parcel-not-arrived",
       "question": "What should we check when a customer says their package never arrived?",
       "expected_files": [
         "shipping-missing-parcel.txt"
       ],
+      "expected_outcome": "answerable",
       "retrieved_files": [
         "shipping-missing-parcel.txt"
       ],
@@ -145,14 +198,21 @@
       "reciprocal_rank": 1.0,
       "decision_provider": null,
       "decision_outcome": null,
-      "decision_correct_against_evidence": null,
-      "end_to_end_decision_correct": null
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     },
     {
+      "case_id": "log-expiry",
       "question": "For how long are application sign-in logs kept?",
       "expected_files": [
         "data-access-log-retention.txt"
       ],
+      "expected_outcome": "answerable",
       "retrieved_files": [
         "data-access-log-retention.txt"
       ],
@@ -164,12 +224,19 @@
       "reciprocal_rank": 1.0,
       "decision_provider": null,
       "decision_outcome": null,
-      "decision_correct_against_evidence": null,
-      "end_to_end_decision_correct": null
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     },
     {
+      "case_id": "wrong-product-trap",
       "question": "How should a failed card capture be handled?",
       "expected_files": [],
+      "expected_outcome": "insufficient_evidence",
       "retrieved_files": [
         "web-deployment-rollback.txt",
         "web-certificate-rotation.txt"
@@ -182,12 +249,19 @@
       "reciprocal_rank": 0.0,
       "decision_provider": null,
       "decision_outcome": null,
-      "decision_correct_against_evidence": null,
-      "end_to_end_decision_correct": null
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     },
     {
+      "case_id": "legacy-trap",
       "question": "How are failed card captures handled by the retired gateway?",
       "expected_files": [],
+      "expected_outcome": "insufficient_evidence",
       "retrieved_files": [],
       "hit": false,
       "no_answer": true,
@@ -197,12 +271,19 @@
       "reciprocal_rank": 0.0,
       "decision_provider": null,
       "decision_outcome": null,
-      "decision_correct_against_evidence": null,
-      "end_to_end_decision_correct": null
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     },
     {
+      "case_id": "recipe-no-answer",
       "question": "What temperature should I bake sourdough at?",
       "expected_files": [],
+      "expected_outcome": "insufficient_evidence",
       "retrieved_files": [
         "data-access-log-retention.txt",
         "people-leave-carryover.txt",
@@ -218,15 +299,22 @@
       "reciprocal_rank": 0.0,
       "decision_provider": null,
       "decision_outcome": null,
-      "decision_correct_against_evidence": null,
-      "end_to_end_decision_correct": null
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     },
     {
+      "case_id": "edge-router-conflict",
       "question": "What should we do when the edge router stops forwarding traffic?",
       "expected_files": [
         "edge-router-failover.txt",
         "edge-router-restart.txt"
       ],
+      "expected_outcome": "review",
       "retrieved_files": [
         "edge-router-restart.txt",
         "edge-router-failover.txt"
@@ -239,8 +327,111 @@
       "reciprocal_rank": 1.0,
       "decision_provider": null,
       "decision_outcome": null,
-      "decision_correct_against_evidence": null,
-      "end_to_end_decision_correct": null
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
+    },
+    {
+      "case_id": "retry-count-not-specified",
+      "question": "How many times should the system retry a failed card capture before abandoning it?",
+      "expected_files": [],
+      "expected_outcome": "insufficient_evidence",
+      "retrieved_files": [
+        "finance-capture-outage.txt",
+        "finance-duplicate-invoice.txt"
+      ],
+      "hit": false,
+      "no_answer": true,
+      "no_answer_correct": false,
+      "precision_at_k": 0.0,
+      "recall_at_k": 0.0,
+      "reciprocal_rank": 0.0,
+      "decision_provider": null,
+      "decision_outcome": null,
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
+    },
+    {
+      "case_id": "parcel-compensation-not-specified",
+      "question": "What monetary compensation must be paid when a customer reports a missing parcel?",
+      "expected_files": [],
+      "expected_outcome": "insufficient_evidence",
+      "retrieved_files": [
+        "shipping-missing-parcel.txt"
+      ],
+      "hit": false,
+      "no_answer": true,
+      "no_answer_correct": false,
+      "precision_at_k": 0.0,
+      "recall_at_k": 0.0,
+      "reciprocal_rank": 0.0,
+      "decision_provider": null,
+      "decision_outcome": null,
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
+    },
+    {
+      "case_id": "certificate-authority-not-specified",
+      "question": "Which certificate authority must issue the replacement public website certificate?",
+      "expected_files": [],
+      "expected_outcome": "insufficient_evidence",
+      "retrieved_files": [
+        "web-certificate-rotation.txt",
+        "web-deployment-rollback.txt"
+      ],
+      "hit": false,
+      "no_answer": true,
+      "no_answer_correct": false,
+      "precision_at_k": 0.0,
+      "recall_at_k": 0.0,
+      "reciprocal_rank": 0.0,
+      "decision_provider": null,
+      "decision_outcome": null,
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
+    },
+    {
+      "case_id": "mfa-recovery-time-not-specified",
+      "question": "How many hours after identity verification will a user regain account access?",
+      "expected_files": [],
+      "expected_outcome": "insufficient_evidence",
+      "retrieved_files": [
+        "identity-mfa-recovery.txt"
+      ],
+      "hit": false,
+      "no_answer": true,
+      "no_answer_correct": false,
+      "precision_at_k": 0.0,
+      "recall_at_k": 0.0,
+      "reciprocal_rank": 0.0,
+      "decision_provider": null,
+      "decision_outcome": null,
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     }
   ]
 }

@@ -41,10 +41,16 @@ Start a local server with `make serve`, then visit [interactive docs](http://127
 uv run python -m benchmarks.run --strategy fts
 uv run python -m benchmarks.run --strategy dense
 uv run python -m benchmarks.run --strategy hybrid
-uv run --env-file .env python -m benchmarks.run --strategy hybrid --decision-provider jev
+
+# Direct, fail-closed Jev benchmark: provider errors are recorded, never replaced with rules.
+uv run --env-file .env python -m benchmarks.run \
+  --corpus benchmarks/robust-text-corpus.json \
+  --queries benchmarks/robust-text-queries.json \
+  --strategy hybrid --decision-provider jev > /tmp/contextvault-robust-jev.json
+uv run python -m benchmarks.thresholds /tmp/contextvault-robust-jev.json
 ```
 
-See the [basic-text evaluation](docs/basic-text-evaluation.md) for the current, deliberately limited FTS/dense/hybrid comparison and its caveats. See the [live Jev evaluation](docs/live-jev-evaluation.md), [robust-text Jev evaluation](docs/robust-text-jev-evaluation.md), and [retrieval findings](docs/retrieval-findings.md) for the verified decision-layer results and remaining limits.
+See the [basic-text evaluation](docs/basic-text-evaluation.md) for the deliberately limited retrieval comparison. The [robust-text decision-gate evaluation](docs/robust-text-jev-evaluation.md) contains the current control matrix, raw per-case artifacts, measured live latency/cost, and its explicit limitations.
 
 The app uses the rules decision provider by default. Set `OPENROUTER_API_KEY` to enable the OpenRouter Jev Decisions adapter (`typesafe/jev-1.13`); it automatically falls back to rules if the external provider is unavailable. Never commit that key. `typesafe/jev-router` is reserved for a future answer-generation routing step.
 

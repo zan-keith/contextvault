@@ -4,6 +4,7 @@ import asyncio
 import json
 import os
 import re
+import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, replace
@@ -16,6 +17,10 @@ class DecisionResult:
     confidence: float
     reasons: list[str]
     provider: str
+    conflict_probability: float | None = None
+    latency_ms: float | None = None
+    input_tokens: int | None = None
+    cost_usd: float | None = None
 
 
 class DecisionProvider(Protocol):
@@ -93,13 +98,21 @@ class JevDecisionProvider:
         base_url: str = "https://openrouter.ai/api/alpha/decisions",
         model: str = "typesafe/jev-1.13",
         timeout: float = 10.0,
+        answerability_threshold: float = 0.7,
+        conflict_threshold: float = 0.7,
     ):
         if not api_key.strip():
             raise ValueError("Jev API key must not be blank")
+        if not 0 <= answerability_threshold <= 1:
+            raise ValueError("answerability_threshold must be between 0 and 1")
+        if not 0 <= conflict_threshold <= 1:
+            raise ValueError("conflict_threshold must be between 0 and 1")
         self.api_key = api_key
         self.base_url = base_url
         self.model = model
         self.timeout = timeout
+        self.answerability_threshold = answerability_threshold
+        self.conflict_threshold = conflict_threshold
 
     def _request(self, body: bytes) -> bytes:
         request = urllib.request.Request(
@@ -156,6 +169,7 @@ class JevDecisionProvider:
             }
         ).encode()
 
+        started_at = time.perf_counter()
         try:
             raw = await asyncio.to_thread(self._request, body)
             response = json.loads(raw)
@@ -165,10 +179,23 @@ class JevDecisionProvider:
         except (OSError, urllib.error.URLError, ValueError, TypeError, KeyError, json.JSONDecodeError) as exc:
             raise RuntimeError("Jev decision request failed") from exc
 
-        if conflict >= 0.7:
+        latency_ms = round((time.perf_counter() - started_at) * 1000, 2)
+        usage = response.get("usage", {}) if isinstance(response.get("usage"), dict) else {}
+        raw_input_tokens = usage.get("input_tokens", usage.get("prompt_tokens"))
+        raw_cost = usage.get("cost", response.get("cost"))
+        try:
+            input_tokens = int(raw_input_tokens) if raw_input_tokens is not None else None
+        except (TypeError, ValueError):
+            input_tokens = None
+        try:
+            cost_usd = float(raw_cost) if raw_cost is not None else None
+        except (TypeError, ValueError):
+            cost_usd = None
+
+        if conflict >= self.conflict_threshold:
             outcome = "review"
             reasons = ["Jev detected potentially conflicting evidence."]
-        elif answerability >= 0.7:
+        elif answerability >= self.answerability_threshold:
             outcome = "answerable"
             reasons = ["Jev judged the retrieved evidence sufficient."]
         else:
@@ -179,6 +206,10 @@ class JevDecisionProvider:
             confidence=round(answerability, 3),
             reasons=reasons,
             provider=self.provider_name,
+            conflict_probability=round(conflict, 3),
+            latency_ms=latency_ms,
+            input_tokens=input_tokens,
+            cost_usd=cost_usd,
         )
 
 

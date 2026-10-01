@@ -2,17 +2,31 @@
   "strategy": "dense",
   "k": 5,
   "queries": 7,
-  "hit_rate": 0.8571428571428571,
-  "precision_at_k": 0.7857142857142857,
-  "recall_at_k": 0.8571428571428571,
-  "mrr": 0.8571428571428571,
-  "no_answer_accuracy": 0,
+  "answerable_queries": 6,
+  "retrieval_hit_rate_answerable": 1,
+  "retrieval_precision_at_k_answerable": 0.9166666666666666,
+  "retrieval_recall_at_k_answerable": 1.0,
+  "retrieval_mrr_answerable": 1.0,
+  "no_answer_queries": 1,
+  "no_answer_empty_result_rate": 0,
+  "review_queries": 0,
+  "decision_providers_observed": null,
+  "decision_configuration": null,
+  "decision_failure_rate": null,
+  "decision_latency_p50_ms": null,
+  "decision_latency_p95_ms": null,
+  "decision_usage_cases": 0,
+  "decision_input_tokens_total": null,
+  "decision_cost_usd_total": null,
+  "end_to_end_outcome_accuracy": null,
   "cases": [
     {
+      "case_id": "exact-payment-retry",
       "question": "How do we retry a payment after processor failure?",
       "expected_files": [
         "billing-retry-runbook.txt"
       ],
+      "expected_outcome": "answerable",
       "retrieved_files": [
         "billing-retry-runbook.txt"
       ],
@@ -21,13 +35,24 @@
       "no_answer_correct": false,
       "precision_at_k": 1.0,
       "recall_at_k": 1.0,
-      "reciprocal_rank": 1.0
+      "reciprocal_rank": 1.0,
+      "decision_provider": null,
+      "decision_outcome": null,
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     },
     {
+      "case_id": "paraphrase-payment-outage",
       "question": "What should happen to a card charge while the banking provider is offline?",
       "expected_files": [
         "billing-retry-runbook.txt"
       ],
+      "expected_outcome": "answerable",
       "retrieved_files": [
         "billing-retry-runbook.txt"
       ],
@@ -36,13 +61,24 @@
       "no_answer_correct": false,
       "precision_at_k": 1.0,
       "recall_at_k": 1.0,
-      "reciprocal_rank": 1.0
+      "reciprocal_rank": 1.0,
+      "decision_provider": null,
+      "decision_outcome": null,
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     },
     {
+      "case_id": "paraphrase-certificate",
       "question": "How do I renew encryption credentials for the public website?",
       "expected_files": [
         "web-tls-deployment.txt"
       ],
+      "expected_outcome": "answerable",
       "retrieved_files": [
         "web-tls-deployment.txt",
         "web-traffic-incident.txt"
@@ -52,13 +88,24 @@
       "no_answer_correct": false,
       "precision_at_k": 0.5,
       "recall_at_k": 1.0,
-      "reciprocal_rank": 1.0
+      "reciprocal_rank": 1.0,
+      "decision_provider": null,
+      "decision_outcome": null,
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     },
     {
+      "case_id": "paraphrase-login",
       "question": "What support step helps a user regain access to their account?",
       "expected_files": [
         "identity-password-reset.txt"
       ],
+      "expected_outcome": "answerable",
       "retrieved_files": [
         "identity-password-reset.txt"
       ],
@@ -67,13 +114,24 @@
       "no_answer_correct": false,
       "precision_at_k": 1.0,
       "recall_at_k": 1.0,
-      "reciprocal_rank": 1.0
+      "reciprocal_rank": 1.0,
+      "decision_provider": null,
+      "decision_outcome": null,
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     },
     {
+      "case_id": "policy-question",
       "question": "Can staff move unused holiday allowance into next year?",
       "expected_files": [
         "people-leave-policy.txt"
       ],
+      "expected_outcome": "answerable",
       "retrieved_files": [
         "people-leave-policy.txt"
       ],
@@ -82,13 +140,24 @@
       "no_answer_correct": false,
       "precision_at_k": 1.0,
       "recall_at_k": 1.0,
-      "reciprocal_rank": 1.0
+      "reciprocal_rank": 1.0,
+      "decision_provider": null,
+      "decision_outcome": null,
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     },
     {
+      "case_id": "metadata-boundary",
       "question": "How are failed charges handled?",
       "expected_files": [
         "billing-retry-runbook.txt"
       ],
+      "expected_outcome": "answerable",
       "retrieved_files": [
         "billing-retry-runbook.txt"
       ],
@@ -97,11 +166,22 @@
       "no_answer_correct": false,
       "precision_at_k": 1.0,
       "recall_at_k": 1.0,
-      "reciprocal_rank": 1.0
+      "reciprocal_rank": 1.0,
+      "decision_provider": null,
+      "decision_outcome": null,
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     },
     {
+      "case_id": "no-answer",
       "question": "What is the recipe for sourdough bread?",
       "expected_files": [],
+      "expected_outcome": "insufficient_evidence",
       "retrieved_files": [
         "web-tls-deployment.txt",
         "identity-password-reset.txt",
@@ -114,7 +194,16 @@
       "no_answer_correct": false,
       "precision_at_k": 0.0,
       "recall_at_k": 0.0,
-      "reciprocal_rank": 0.0
+      "reciprocal_rank": 0.0,
+      "decision_provider": null,
+      "decision_outcome": null,
+      "decision_confidence": null,
+      "decision_conflict_probability": null,
+      "decision_latency_ms": null,
+      "decision_input_tokens": null,
+      "decision_cost_usd": null,
+      "decision_error": null,
+      "end_to_end_outcome_correct": false
     }
   ]
 }

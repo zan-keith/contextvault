@@ -13,9 +13,60 @@ def test_checked_in_baseline_benchmark():
     )
 
     assert result["queries"] == 5
-    assert result["precision_at_k"] == 1.0
-    assert result["recall_at_k"] == 1.0
-    assert result["no_answer_accuracy"] == 1.0
+    assert result["retrieval_precision_at_k_answerable"] == 1.0
+    assert result["retrieval_recall_at_k_answerable"] == 1.0
+    assert result["no_answer_empty_result_rate"] == 1.0
+
+
+def test_benchmark_reports_answerable_retrieval_metrics_separately_from_no_answer_rejection():
+    result = run_benchmark(
+        Path("benchmarks/corpus.json"),
+        Path("benchmarks/queries.json"),
+        limit=5,
+    )
+
+    assert result["answerable_queries"] == 4
+    assert result["retrieval_recall_at_k_answerable"] == 1.0
+    assert result["retrieval_mrr_answerable"] == 1.0
+    assert result["no_answer_queries"] == 1
+    assert result["no_answer_empty_result_rate"] == 1.0
+    assert "recall_at_k" not in result
+
+
+def test_threshold_summary_reports_accuracy_coverage_and_calibration():
+    from benchmarks.thresholds import summarize_thresholds
+
+    rows = [
+        {"expected_outcome": "answerable", "decision_confidence": 0.8, "decision_conflict_probability": 0.1},
+        {"expected_outcome": "insufficient_evidence", "decision_confidence": 0.6, "decision_conflict_probability": 0.1},
+        {"expected_outcome": "review", "decision_confidence": 0.9, "decision_conflict_probability": 0.85},
+    ]
+
+    summaries = summarize_thresholds(rows, answerability_thresholds=[0.5, 0.7], conflict_threshold=0.7)
+
+    assert summaries[0]["answerability_threshold"] == 0.5
+    assert summaries[0]["end_to_end_outcome_accuracy"] == 2 / 3
+    assert summaries[0]["false_answer_rate"] == 0.5
+    assert summaries[1]["answerability_threshold"] == 0.7
+    assert summaries[1]["end_to_end_outcome_accuracy"] == 1.0
+    assert summaries[1]["answerable_precision"] == 1.0
+    assert summaries[1]["brier_score"] == 1.21 / 3
+
+
+def test_benchmark_records_decision_failures_without_substituting_a_fallback():
+    class BrokenJudge:
+        async def evaluate(self, _question, _candidates):
+            raise RuntimeError("network unavailable")
+
+    result = run_benchmark(
+        Path("benchmarks/corpus.json"),
+        Path("benchmarks/queries.json"),
+        decision_provider=BrokenJudge(),
+    )
+
+    assert result["decision_failure_rate"] == 1.0
+    assert result["end_to_end_outcome_accuracy"] == 0.0
+    assert {case["decision_error"] for case in result["cases"]} == {"RuntimeError"}
 
 
 def test_benchmark_can_run_dense_only_comparison(monkeypatch):
@@ -62,9 +113,8 @@ def test_benchmark_reports_decision_accuracy_for_retrieved_evidence():
         decision_provider=EvidenceJudge(),
     )
 
-    assert result["decision_provider"] == "evidence-judge"
-    assert result["decision_accuracy_against_evidence"] == 1.0
-    assert result["end_to_end_decision_accuracy"] == 1.0
+    assert result["decision_providers_observed"] == "evidence-judge"
+    assert result["end_to_end_outcome_accuracy"] == 1.0
 
 
 def test_benchmark_uses_broader_hybrid_candidates_when_a_decision_judge_is_present(monkeypatch):
@@ -145,5 +195,4 @@ def test_benchmark_honours_a_labeled_review_outcome(tmp_path):
 
     result = run_benchmark(corpus_path, queries_path, decision_provider=ReviewJudge())
 
-    assert result["decision_accuracy_against_evidence"] == 1.0
-    assert result["end_to_end_decision_accuracy"] == 1.0
+    assert result["end_to_end_outcome_accuracy"] == 1.0

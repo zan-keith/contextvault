@@ -1,28 +1,28 @@
-# Basic-text retrieval evaluation
+# Basic-text retrieval diagnostic
 
-This small, human-labelled diagnostic corpus contains seven ordinary operations and support documents. Its seven queries cover exact wording, four paraphrases, a metadata boundary, and a no-answer case. It is a design check, not a production-quality evaluation set.
+This is a small seven-query, project-authored retrieval sanity check. It has six answerable queries and one no-answer query. It is not an independent test set and it does not evaluate a decision gate.
 
-## Measured results at k=5
+## Results at k=5
 
-| Strategy | Precision@5 | Recall@5 | MRR | No-answer accuracy |
+Answerable retrieval metrics are calculated only over the six answerable queries. The no-answer empty-result rate is calculated independently over the one no-answer query.
+
+| Strategy | Answerable precision@5 | Answerable recall@5 | Answerable MRR | No-answer empty-result rate |
 | --- | ---: | ---: | ---: | ---: |
-| FTS lexical baseline | 0.857 | 0.857 | 0.714 | 1.0 |
-| Dense-only FastEmbed | 0.786 | 0.857 | 0.857 | 0.0 |
-| Current hybrid | 0.857 | 0.857 | 0.714 | 1.0 |
+| FTS lexical baseline | 0.833 | 0.833 | 0.833 | 1.000 |
+| Dense-only FastEmbed | 0.917 | 1.000 | 1.000 | 0.000 |
+| Strict hybrid | 0.833 | 0.833 | 0.833 | 1.000 |
 
-Dense-only retrieval recovered the TLS paraphrase that FTS missed, but returned unrelated sources for the sourdough no-answer query. The current hybrid's conservative semantic threshold rejected both, so it tied FTS instead of improving it.
+## What this shows
 
-## Conclusion
+Dense retrieval found all six intended source files and ranked them first in this small set, but it returned a candidate for the no-answer question. FTS and strict hybrid avoided that no-answer false positive, but each missed one answerable case. The values should not be averaged into one headline recall: they represent different trade-offs.
 
-This does not yet establish that ContextVault improves over ordinary dense RAG. It demonstrates the actual trade-off: dense retrieval improves paraphrase recall, while the current abstention gate improves no-answer precision but needs calibration on a larger held-out labelled corpus. Do not change the threshold based on this seven-query set.
+The later Jev evaluation is documented separately in the [robust-text decision-gate evaluation](robust-text-jev-evaluation.md). That evaluation tests a decision gate after retrieval; it does not change these retrieval-only findings.
 
-Run the comparison:
+## Reproduce
 
 ```bash
-for strategy in fts dense hybrid; do
-  uv run python -m benchmarks.run \
-    --corpus benchmarks/basic-text-corpus.json \
-    --queries benchmarks/basic-text-queries.json \
-    --strategy "$strategy"
-done
+uv run python -m benchmarks.run \
+  --corpus benchmarks/basic-text-corpus.json \
+  --queries benchmarks/basic-text-queries.json \
+  --strategy fts
 ```

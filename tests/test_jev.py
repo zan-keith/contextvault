@@ -32,6 +32,28 @@ def test_jev_provider_builds_typed_decision_request_without_network():
     assert provider.request_body["questions"]["answerable"]["type"] == "noul"
 
 
+def test_jev_provider_exposes_probabilities_and_honours_configured_thresholds():
+    class StubJev(JevDecisionProvider):
+        def _request(self, body: bytes) -> bytes:
+            return json.dumps(
+                {
+                    "answers": {
+                        "answerable": {"type": "noul", "noul": 0.81},
+                        "conflict": {"type": "noul", "noul": 0.75},
+                    }
+                }
+            ).encode()
+
+    provider = StubJev("test-key", conflict_threshold=0.8)
+    result = asyncio.run(provider.evaluate("question", [{"text": "evidence"}]))
+
+    assert result.outcome == "answerable"
+    assert result.confidence == 0.81
+    assert result.conflict_probability == 0.75
+    assert result.latency_ms is not None
+    assert result.latency_ms >= 0
+
+
 def test_jev_provider_falls_back_to_rules_on_provider_failure():
     class BrokenProvider:
         async def evaluate(self, question, candidates):

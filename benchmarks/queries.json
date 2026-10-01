@@ -4,28 +4,42 @@
     "product": "X200",
     "version": "B",
     "document_type": "troubleshooting",
-    "expected_files": ["x200-calibration-b.txt"]
+    "expected_files": [
+      "x200-calibration-b.txt"
+    ],
+    "expected_outcome": "answerable"
   },
   {
     "question": "How do I install the X200 module?",
     "product": "X200",
     "version": "B",
     "document_type": "manual",
-    "expected_files": ["x200-installation-b.txt"]
+    "expected_files": [
+      "x200-installation-b.txt"
+    ],
+    "expected_outcome": "answerable"
   },
   {
     "question": "What sensor is involved in X300 calibration failures?",
     "product": "X300",
     "version": "B",
     "document_type": "troubleshooting",
-    "expected_files": ["x300-calibration-b.txt"]
+    "expected_files": [
+      "x300-calibration-b.txt"
+    ],
+    "expected_outcome": "answerable"
   },
   {
     "question": "Which calibration documents mention a sensor?",
-    "expected_files": ["x200-calibration-b.txt", "x300-calibration-b.txt"]
+    "expected_files": [
+      "x200-calibration-b.txt",
+      "x300-calibration-b.txt"
+    ],
+    "expected_outcome": "answerable"
   },
   {
     "question": "How do I repair a quantum reactor?",
-    "expected_files": []
+    "expected_files": [],
+    "expected_outcome": "insufficient_evidence"
   }
 ]

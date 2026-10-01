@@ -1,27 +1,23 @@
-# Live Jev decision evaluation
+# Early seven-case Jev diagnostic (historical)
 
-This evaluation uses the seven-case basic-text diagnostic corpus and a live OpenRouter Jev Decisions call (`typesafe/jev-1.13`) for every question. It measures two layers independently:
+This document records the first live Jev experiment on the basic-text corpus. It is retained for development history, but its original summary used a blended retrieval metric and omitted the direct `dense + local rules` control. It must **not** be read as the current evidence for a Jev advantage.
 
-- **Retrieval**: whether the expected source file was returned in the candidate set.
-- **Decision**: whether Jev correctly judged the candidates as sufficient or insufficient.
-- **Visible response**: whether the API would return evidence only for an answerable question.
+The current evaluation uses:
 
-## Results
+- answerable-query retrieval recall/MRR separated from no-answer empty-result rate;
+- explicit `answerable` / `insufficient_evidence` / `review` labels for every query;
+- `dense + rules` and `hybrid + rules` controls;
+- fail-closed Jev benchmark mode, with provider errors retained per case;
+- per-case answerability/conflict probabilities and observed provider;
+- latency, returned usage/cost, and offline threshold-sweep artifacts.
 
-| Configuration | Candidate recall@5 | Raw retrieval no-answer accuracy | Decision accuracy against candidates | End-to-end answer/abstain accuracy |
-| --- | ---: | ---: | ---: | ---: |
-| Dense retrieval, no decision judge | 0.857 | 0.0 | — | — |
-| Dense retrieval + Jev | 0.857 | 0.0 | 1.0 | 1.0 |
-| Strict hybrid retrieval + local rules | 0.857 | 1.0 | 1.0 | 0.857 |
-| Broad hybrid candidates + Jev | 0.857 | 0.0 | 1.0 | 1.0 |
+See the [robust-text decision-gate evaluation](robust-text-jev-evaluation.md) for the current 16-case diagnostic matrix, raw result files, and limitations.
 
-The broader hybrid candidate path recovered the TLS paraphrase. It also returned unrelated candidates for the sourdough no-answer query, but Jev returned `insufficient_evidence`; the query API suppresses those candidates from the user-facing response.
+## Historical observation
 
-## Honest conclusion
+The initial run indicated that a Jev gate could reject an obviously unrelated sourdough candidate returned by dense retrieval. That was only a sanity check. It did not establish superiority over a local rule gate, calibrated decision thresholds, conflict handling, or real-document performance.
 
-This small project-authored diagnostic dataset supports one narrow claim: Jev improves **evidence verification and safe abstention** compared with returning vector-search candidates directly. It does not prove that Jev improves document retrieval, nor does it establish production quality. See [retrieval findings](retrieval-findings.md) for the remaining limitations and next evaluation work.
-
-## Reproduce
+## Original reproduction command
 
 ```bash
 uv run --env-file .env python -m benchmarks.run \

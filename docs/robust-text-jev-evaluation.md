@@ -1,35 +1,91 @@
-# Robust-text live Jev evaluation
+# Robust-text decision-gate evaluation
 
-This second diagnostic corpus contains 11 documents and 12 labelled cases. It is separate from the initial basic-text corpus and adds metadata traps, an explicitly superseded document, three no-answer cases, and a pair of contradictory active router procedures.
+This is a **project-authored diagnostic**, not a production-quality or independent held-out study. It contains 11 short documents and 16 labelled queries:
 
-## Measured results at k=5
+- 8 answerable queries;
+- 7 insufficient-evidence queries, including four topical-but-incomplete questions (retry count, missing-parcel compensation, certificate authority, and MFA recovery time);
+- 1 active-document conflict expected to return `review`.
 
-| Configuration | Candidate precision@5 | Candidate recall@5 | MRR | Raw no-answer accuracy | Jev decision accuracy | End-to-end outcome accuracy |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| FTS lexical baseline | 0.917 | 0.917 | 0.750 | 0.667 | — | — |
-| Dense-only retrieval | 0.667 | 0.833 | 0.750 | 0.333 | — | — |
-| Broad hybrid candidates + live Jev | 0.667 | 0.833 | 0.750 | 0.333 | 1.0 | 1.0 |
+Every query carries an explicit `expected_outcome`: `answerable`, `insufficient_evidence`, or `review`. The benchmark reports the retrieved filenames, ranks, decision probabilities, observed provider, error (if any), and final outcome per case. It does **not** call a retrieval-conditioned score an independently labelled evidence-quality metric.
 
-## What Jev correctly handled
+## Retrieval results at k=5
 
-- Rejected unrelated web documents for a payment question constrained to the `web` product.
-- Rejected unrelated candidate passages for a sourdough query.
-- Rejected a retired gateway query because the only matching source was superseded.
-- Returned `review` rather than `answerable` when two active edge-router guides gave incompatible instructions.
-- Accepted all eight supported answerable cases.
+Retrieval metrics are reported only over the 8 answerable queries. No-answer empty-result rate is reported independently across the 7 insufficient-evidence queries.
 
-## Interpretation
+| Retrieval strategy | Answerable recall@5 | Answerable MRR | No-answer empty-result rate |
+| --- | ---: | ---: | ---: |
+| FTS | 1.000 | 1.000 | 0.286 |
+| Dense | 1.000 | 1.000 | 0.143 |
+| Hybrid | 1.000 | 1.000 | 0.286 |
 
-The retrieval layer still returns weak semantic candidates and needs scalable vector indexing and a stronger ranking stage. Jev materially improves the user-facing result because ContextVault withholds candidates unless Jev finds sufficient, non-conflicting evidence.
+This corpus remains retrieval-friendly: all supported documents appeared at rank 1 for all three strategies. It is useful for testing evidence decisions after imperfect candidate retrieval, but it does **not** demonstrate a retrieval-ranking advantage for dense or hybrid search.
 
-This does **not** prove universal 100% quality. The corpus is small, labelled by this project, and not independent. The next reliable milestone is a larger held-out set built from real anonymised documents or externally reviewed cases, with latency and cost captured alongside accuracy.
+## Decision-gate control matrix
+
+| Retrieval | Judge | End-to-end outcome accuracy | Observed judge failures |
+| --- | --- | ---: | ---: |
+| FTS | none | — | — |
+| Dense | none | — | — |
+| Hybrid | none | — | — |
+| Dense | local rules | 0.438 (7/16) | 0/16 |
+| Dense | live Jev | 1.000 (16/16) | 0/16 |
+| Hybrid | local rules | 0.438 (7/16) | 0/16 |
+| Hybrid | live Jev | 1.000 (16/16) | 0/16 |
+
+The `jev` benchmark mode is **fail closed**: a remote request error is retained as a failed case with `decision_error`; it never silently runs rules instead. The application may still use a rules fallback for service availability, but that is deliberately not used in this evaluation.
+
+This comparison supports a narrow claim: on this exact 16-case diagnostic set, live Jev produced better labelled end-to-end outcomes than the checked-in local rule gate. It does not establish an advantage on independently labelled evidence sets, real company documents, or general production traffic.
+
+## Live operational measurements
+
+| Configuration | p50 decision latency | p95 decision latency | Input tokens | Reported total cost |
+| --- | ---: | ---: | ---: | ---: |
+| Dense + Jev | 296.68 ms | 508.86 ms | 8,933 | $0.000375186 |
+| Hybrid + Jev | 288.09 ms | 383.64 ms | 8,947 | $0.000375774 |
+
+These are one local live run against OpenRouter's Decisions API, not latency or cost service-level objectives.
+
+## Threshold sweep and calibration
+
+One fixed set of recorded Jev probabilities was reclassified offline at answerability thresholds `0.5`, `0.7`, `0.8`, and `0.9`, with conflict threshold fixed at `0.7`.
+
+| Answerability threshold | End-to-end accuracy | Answerable precision | Answerable recall | False-answer rate | Abstention rate | Brier score |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0.5 | 1.000 | 1.000 | 1.000 | 0.000 | 0.438 | 0.0626 |
+| 0.7 | 1.000 | 1.000 | 1.000 | 0.000 | 0.438 | 0.0626 |
+| 0.8 | 1.000 | 1.000 | 1.000 | 0.000 | 0.438 | 0.0626 |
+| 0.9 | 1.000 | 1.000 | 1.000 | 0.000 | 0.438 | 0.0626 |
+
+The flat sweep is a limitation: all observed answerability probabilities were well away from these thresholds. This dataset therefore does **not** calibrate the production threshold. A future set needs independently labelled borderline evidence and more hard negatives around the decision boundary.
+
+## Raw artifacts
+
+- [FTS](robust-text-fts-results.json)
+- [Dense](robust-text-dense-results.json)
+- [Hybrid](robust-text-hybrid-results.json)
+- [Dense + local rules](robust-text-dense-rules-results.json)
+- [Dense + live Jev](robust-text-dense-jev-results.json)
+- [Hybrid + local rules](robust-text-hybrid-rules-results.json)
+- [Hybrid + live Jev](robust-text-hybrid-jev-results.json)
+- [Hybrid + Jev threshold sweep](robust-text-hybrid-jev-thresholds.json)
 
 ## Reproduce
 
 ```bash
+# A normal Jev benchmark: direct provider, error recorded per case, no fallback.
 uv run --env-file .env python -m benchmarks.run \
   --corpus benchmarks/robust-text-corpus.json \
   --queries benchmarks/robust-text-queries.json \
   --strategy hybrid \
-  --decision-provider jev
+  --decision-provider jev > /tmp/robust-hybrid-jev.json
+
+# Reclassify the recorded probabilities without calling Jev again.
+uv run python -m benchmarks.thresholds /tmp/robust-hybrid-jev.json
 ```
+
+## What remains necessary
+
+1. An independently authored, held-out corpus with candidate-set-level human evidence judgements.
+2. Borderline cases to calibrate answerability and conflict thresholds.
+3. Multi-document, ambiguous, near-miss, malformed-metadata, and prompt-injection-like document cases.
+4. Repeated latency, cost, and failure-rate runs under realistic corpus sizes.

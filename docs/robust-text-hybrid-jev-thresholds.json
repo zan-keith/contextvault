@@ -1,0 +1,50 @@
+[
+  {
+    "answerability_threshold": 0.5,
+    "conflict_threshold": 0.7,
+    "evaluated_cases": 16,
+    "end_to_end_outcome_accuracy": 1,
+    "answerable_precision": 1.0,
+    "answerable_recall": 1.0,
+    "false_answer_rate": 0.0,
+    "abstention_rate": 0.4375,
+    "answer_coverage": 0.5,
+    "brier_score": 0.06255625
+  },
+  {
+    "answerability_threshold": 0.7,
+    "conflict_threshold": 0.7,
+    "evaluated_cases": 16,
+    "end_to_end_outcome_accuracy": 1,
+    "answerable_precision": 1.0,
+    "answerable_recall": 1.0,
+    "false_answer_rate": 0.0,
+    "abstention_rate": 0.4375,
+    "answer_coverage": 0.5,
+    "brier_score": 0.06255625
+  },
+  {
+    "answerability_threshold": 0.8,
+    "conflict_threshold": 0.7,
+    "evaluated_cases": 16,
+    "end_to_end_outcome_accuracy": 1,
+    "answerable_precision": 1.0,
+    "answerable_recall": 1.0,
+    "false_answer_rate": 0.0,
+    "abstention_rate": 0.4375,
+    "answer_coverage": 0.5,
+    "brier_score": 0.06255625
+  },
+  {
+    "answerability_threshold": 0.9,
+    "conflict_threshold": 0.7,
+    "evaluated_cases": 16,
+    "end_to_end_outcome_accuracy": 1,
+    "answerable_precision": 1.0,
+    "answerable_recall": 1.0,
+    "false_answer_rate": 0.0,
+    "abstention_rate": 0.4375,
+    "answer_coverage": 0.5,
+    "brier_score": 0.06255625
+  }
+]

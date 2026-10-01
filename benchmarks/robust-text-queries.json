@@ -7,7 +7,8 @@
     "document_type": "runbook",
     "expected_files": [
       "finance-capture-outage.txt"
-    ]
+    ],
+    "expected_outcome": "answerable"
   },
   {
     "id": "duplicate-bill",
@@ -17,7 +18,8 @@
     "document_type": "runbook",
     "expected_files": [
       "finance-duplicate-invoice.txt"
-    ]
+    ],
+    "expected_outcome": "answerable"
   },
   {
     "id": "certificate-paraphrase",
@@ -27,7 +29,8 @@
     "document_type": "runbook",
     "expected_files": [
       "web-certificate-rotation.txt"
-    ]
+    ],
+    "expected_outcome": "answerable"
   },
   {
     "id": "bad-release",
@@ -37,7 +40,8 @@
     "document_type": "runbook",
     "expected_files": [
       "web-deployment-rollback.txt"
-    ]
+    ],
+    "expected_outcome": "answerable"
   },
   {
     "id": "lost-second-factor",
@@ -47,7 +51,8 @@
     "document_type": "runbook",
     "expected_files": [
       "identity-mfa-recovery.txt"
-    ]
+    ],
+    "expected_outcome": "answerable"
   },
   {
     "id": "leave-carryover",
@@ -57,7 +62,8 @@
     "document_type": "policy",
     "expected_files": [
       "people-leave-carryover.txt"
-    ]
+    ],
+    "expected_outcome": "answerable"
   },
   {
     "id": "parcel-not-arrived",
@@ -67,7 +73,8 @@
     "document_type": "runbook",
     "expected_files": [
       "shipping-missing-parcel.txt"
-    ]
+    ],
+    "expected_outcome": "answerable"
   },
   {
     "id": "log-expiry",
@@ -77,7 +84,8 @@
     "document_type": "policy",
     "expected_files": [
       "data-access-log-retention.txt"
-    ]
+    ],
+    "expected_outcome": "answerable"
   },
   {
     "id": "wrong-product-trap",
@@ -85,7 +93,8 @@
     "product": "web",
     "version": "v5",
     "document_type": "runbook",
-    "expected_files": []
+    "expected_files": [],
+    "expected_outcome": "insufficient_evidence"
   },
   {
     "id": "legacy-trap",
@@ -93,12 +102,14 @@
     "product": "finance",
     "version": "v0",
     "document_type": "runbook",
-    "expected_files": []
+    "expected_files": [],
+    "expected_outcome": "insufficient_evidence"
   },
   {
     "id": "recipe-no-answer",
     "question": "What temperature should I bake sourdough at?",
-    "expected_files": []
+    "expected_files": [],
+    "expected_outcome": "insufficient_evidence"
   },
   {
     "id": "edge-router-conflict",
@@ -111,5 +122,41 @@
       "edge-router-failover.txt"
     ],
     "expected_outcome": "review"
+  },
+  {
+    "id": "retry-count-not-specified",
+    "question": "How many times should the system retry a failed card capture before abandoning it?",
+    "product": "finance",
+    "version": "v2",
+    "document_type": "runbook",
+    "expected_files": [],
+    "expected_outcome": "insufficient_evidence"
+  },
+  {
+    "id": "parcel-compensation-not-specified",
+    "question": "What monetary compensation must be paid when a customer reports a missing parcel?",
+    "product": "shipping",
+    "version": "v3",
+    "document_type": "runbook",
+    "expected_files": [],
+    "expected_outcome": "insufficient_evidence"
+  },
+  {
+    "id": "certificate-authority-not-specified",
+    "question": "Which certificate authority must issue the replacement public website certificate?",
+    "product": "web",
+    "version": "v5",
+    "document_type": "runbook",
+    "expected_files": [],
+    "expected_outcome": "insufficient_evidence"
+  },
+  {
+    "id": "mfa-recovery-time-not-specified",
+    "question": "How many hours after identity verification will a user regain account access?",
+    "product": "identity",
+    "version": "v4",
+    "document_type": "runbook",
+    "expected_files": [],
+    "expected_outcome": "insufficient_evidence"
   }
 ]

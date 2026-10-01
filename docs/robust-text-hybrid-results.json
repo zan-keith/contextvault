@@ -1,5 +1,5 @@
 {
-  "strategy": "fts",
+  "strategy": "hybrid",
   "k": 5,
   "queries": 16,
   "answerable_queries": 8,
