@@ -8,19 +8,54 @@ import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, replace
-from typing import Any, ClassVar, Protocol
+from typing import Any, ClassVar, Literal, Protocol
+
+DecisionOutcome = Literal[
+    "answerable",
+    "partial",
+    "insufficient_evidence",
+    "review",
+    "conflict",
+    "stale",
+    "scope_mismatch",
+]
 
 
 @dataclass(frozen=True)
-class DecisionResult:
-    outcome: str
+class RequirementDecision:
+    requirement_id: str
+    text: str
+    status: str
+    support_probability: float | None = None
+
+
+@dataclass(frozen=True)
+class EvidenceDecision:
+    outcome: DecisionOutcome | str
     confidence: float
-    reasons: list[str]
+    reasons: tuple[str, ...] | list[str]
     provider: str
     conflict_probability: float | None = None
+    coverage: float | None = None
+    applicability: float | None = None
+    freshness: float | None = None
+    provider_version: str = "unknown"
     latency_ms: float | None = None
     input_tokens: int | None = None
     cost_usd: float | None = None
+    requirements: tuple[RequirementDecision, ...] | list[RequirementDecision] = ()
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "reasons", tuple(self.reasons))
+        object.__setattr__(self, "requirements", tuple(self.requirements))
+
+    @property
+    def support_probability(self) -> float:
+        return self.confidence
+
+
+# Compatibility name retained while callers migrate to the evidence-oriented model.
+DecisionResult = EvidenceDecision
 
 
 class DecisionProvider(Protocol):
@@ -32,6 +67,7 @@ class RuleDecisionProvider:
     """Transparent local fallback used for tests and development."""
 
     provider_name = "rules"
+    provider_version = "rules-v1"
     _stopwords: ClassVar[set[str]] = {"a", "an", "and", "are", "do", "for", "how", "i", "is", "the", "to", "what"}
 
     @classmethod
@@ -49,6 +85,7 @@ class RuleDecisionProvider:
                 confidence=0.0,
                 reasons=["No active evidence matched the query."],
                 provider=self.provider_name,
+                provider_version=self.provider_version,
             )
 
         query_terms = self._terms(question)
@@ -72,12 +109,14 @@ class RuleDecisionProvider:
                 confidence=confidence,
                 reasons=[f"Lexical evidence matched {best_name}."],
                 provider=self.provider_name,
+                provider_version=self.provider_version,
             )
         return DecisionResult(
             outcome="insufficient_evidence",
             confidence=confidence,
             reasons=["Retrieved evidence has insufficient query-term coverage."],
             provider=self.provider_name,
+            provider_version=self.provider_version,
         )
 
 
@@ -206,6 +245,7 @@ class JevDecisionProvider:
             confidence=round(answerability, 3),
             reasons=reasons,
             provider=self.provider_name,
+            provider_version=self.model,
             conflict_probability=round(conflict, 3),
             latency_ms=latency_ms,
             input_tokens=input_tokens,

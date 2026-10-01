@@ -1,8 +1,33 @@
 import json
 from pathlib import Path
 
-from app.decisions import DecisionResult
+import pytest
+
+from app.decisions import DecisionResult, EvidenceDecision
 from benchmarks.run import run_benchmark
+
+
+def test_evidence_decision_is_immutable_and_exposes_typed_probabilities():
+    from dataclasses import FrozenInstanceError
+
+    decision = EvidenceDecision(
+        outcome="partial",
+        confidence=0.61,
+        reasons=["one requirement is unsupported"],
+        provider="test",
+        provider_version="test-v1",
+        conflict_probability=0.12,
+        coverage=0.5,
+        applicability=0.9,
+        freshness=0.8,
+    )
+
+    assert decision.support_probability == 0.61
+    assert decision.confidence == 0.61
+    assert decision.provider_version == "test-v1"
+    assert decision.reasons == ("one requirement is unsupported",)
+    with pytest.raises(FrozenInstanceError):
+        decision.outcome = "answerable"
 
 
 def test_checked_in_baseline_benchmark():
@@ -16,6 +41,23 @@ def test_checked_in_baseline_benchmark():
     assert result["retrieval_precision_at_k_answerable"] == 1.0
     assert result["retrieval_recall_at_k_answerable"] == 1.0
     assert result["no_answer_empty_result_rate"] == 1.0
+
+
+def test_benchmark_emits_reproducibility_manifest():
+    result = run_benchmark(
+        Path("benchmarks/corpus.json"),
+        Path("benchmarks/queries.json"),
+        limit=5,
+    )
+
+    manifest = result["manifest"]
+    assert manifest["benchmark_version"] == "contextvault-benchmark-v2"
+    assert len(manifest["git_commit"]) == 40
+    assert len(manifest["corpus_sha256"]) == 64
+    assert len(manifest["query_set_sha256"]) == 64
+    assert manifest["embedding_model"] is None
+    assert manifest["decision_model_revision"] is None
+    assert manifest["retrieval_config"] == {"strategy": "fts", "limit": 5}
 
 
 def test_benchmark_reports_answerable_retrieval_metrics_separately_from_no_answer_rejection():

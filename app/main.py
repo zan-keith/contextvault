@@ -189,8 +189,14 @@ def create_app(
             "decision": {
                 "outcome": decision.outcome,
                 "confidence": decision.confidence,
-                "reasons": decision.reasons,
+                "support_probability": decision.support_probability,
+                "conflict_probability": decision.conflict_probability,
+                "coverage": decision.coverage,
+                "applicability": decision.applicability,
+                "freshness": decision.freshness,
                 "provider": decision.provider,
+                "provider_version": decision.provider_version,
+                "reasons": decision.reasons,
             },
             "results": visible_results,
         }

@@ -1,5 +1,5 @@
 from app.db import Database
-from app.retrieval import HybridRetriever
+from app.retrieval import FastEmbedProvider, HybridRetriever
 
 
 class StaticEmbedder:
@@ -19,6 +19,15 @@ class WeakSemanticEmbedder:
 
     def embed(self, texts):
         return [[1.0, 0.0], *[[0.5, 0.866] for _ in texts[1:]]]
+
+
+def test_fastembed_revision_is_part_of_persistent_cache_key(monkeypatch):
+    monkeypatch.delenv("CONTEXTVAULT_EMBEDDING_MODEL_REVISION", raising=False)
+
+    provider = FastEmbedProvider(model_revision="revision-a")
+
+    assert provider.revision == "revision-a"
+    assert provider.cache_key == "BAAI/bge-small-en-v1.5@revision-a"
 
 
 def test_hybrid_retrieval_can_rank_semantic_match_without_lexical_overlap(tmp_path):
@@ -49,6 +58,37 @@ def test_hybrid_retrieval_can_rank_semantic_match_without_lexical_overlap(tmp_pa
     assert results[0]["name"] == "vacuum.txt"
     assert results[0]["semantic_score"] == 1.0
     assert results[0]["hybrid_score"] > results[1]["hybrid_score"]
+
+
+class CountingEmbedder:
+    name = "counting"
+
+    def __init__(self):
+        self.calls = []
+
+    def embed(self, texts):
+        self.calls.append(len(texts))
+        return [[1.0, 0.0] for _ in texts]
+
+
+def test_hybrid_reuses_persisted_document_embeddings(tmp_path):
+    db = Database(tmp_path / "embedding-cache.db")
+    db.create_file(
+        name="vacuum.txt",
+        description="Vacuum sensor inspection procedure",
+        content="Vacuum sensor inspection procedure",
+        product="X200",
+        version="B",
+        document_type="troubleshooting",
+        status="active",
+    )
+    embedder = CountingEmbedder()
+    retriever = HybridRetriever(db, embedder, min_semantic_score=0.0)
+
+    retriever.search("How do I diagnose low pressure?", product="X200")
+    retriever.search("How do I diagnose low pressure?", product="X200")
+
+    assert embedder.calls == [2, 1]
 
 
 def test_hybrid_retrieval_respects_metadata_filters(tmp_path):

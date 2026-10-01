@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import re
 import sqlite3
 from pathlib import Path
@@ -68,6 +69,14 @@ class Database:
                     file_id INTEGER NOT NULL REFERENCES files(id) ON DELETE CASCADE,
                     ordinal INTEGER NOT NULL,
                     text TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS chunk_embeddings (
+                    chunk_id INTEGER NOT NULL REFERENCES chunks(id) ON DELETE CASCADE,
+                    model TEXT NOT NULL,
+                    vector_json TEXT NOT NULL,
+                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (chunk_id, model)
                 );
 
                 CREATE VIRTUAL TABLE IF NOT EXISTS chunks_fts USING fts5(
@@ -266,3 +275,36 @@ class Database:
         with self._connect() as connection:
             rows = connection.execute(sql, parameters).fetchall()
         return [dict(row) for row in rows]
+
+    def get_chunk_embeddings(self, chunk_ids: list[int], model: str) -> dict[int, list[float]]:
+        if not chunk_ids:
+            return {}
+        placeholders = ",".join("?" for _ in chunk_ids)
+        with self._connect() as connection:
+            rows = connection.execute(
+                f"SELECT chunk_id, vector_json FROM chunk_embeddings WHERE model = ? AND chunk_id IN ({placeholders})",
+                [model, *chunk_ids],
+            ).fetchall()
+        return {int(row["chunk_id"]): json.loads(row["vector_json"]) for row in rows}
+
+    def upsert_chunk_embeddings(
+        self,
+        embeddings: list[tuple[int, str, list[float]]],
+    ) -> None:
+        if not embeddings:
+            return
+        with self._connect() as connection:
+            connection.executemany(
+                """
+                INSERT INTO chunk_embeddings (chunk_id, model, vector_json)
+                VALUES (?, ?, ?)
+                ON CONFLICT(chunk_id, model) DO UPDATE SET
+                    vector_json = excluded.vector_json,
+                    created_at = CURRENT_TIMESTAMP
+                """,
+                [
+                    (chunk_id, model, json.dumps(vector, separators=(",", ":")))
+                    for chunk_id, model, vector in embeddings
+                ],
+            )
+

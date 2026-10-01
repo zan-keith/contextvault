@@ -13,6 +13,7 @@ from typing import Any
 from app.db import Database
 from app.decisions import DecisionProvider, JevDecisionProvider, RuleDecisionProvider
 from app.retrieval import FastEmbedProvider, HybridRetriever
+from benchmarks.manifest import build_manifest
 
 ROOT = Path(__file__).parent
 
@@ -61,6 +62,34 @@ def run_benchmark(
             )
         else:
             hybrid_retriever = HybridRetriever(db, FastEmbedProvider())
+
+        retrieval_config = {"strategy": strategy, "limit": limit}
+        embedding_model = None
+        embedding_model_revision = None
+        if hybrid_retriever is not None:
+            retrieval_config.update(
+                {
+                    "semantic_weight": getattr(hybrid_retriever, "semantic_weight", None),
+                    "min_semantic_score": getattr(hybrid_retriever, "min_semantic_score", None),
+                    "candidate_limit": getattr(hybrid_retriever, "candidate_limit", None),
+                }
+            )
+            embedder = getattr(hybrid_retriever, "embedder", None)
+            embedding_model = getattr(embedder, "name", None)
+            embedding_model_revision = getattr(embedder, "revision", None)
+        manifest = build_manifest(
+            corpus_path,
+            queries_path,
+            repository=ROOT.parent,
+            retrieval_config=retrieval_config,
+            embedding_model=embedding_model,
+            embedding_model_revision=embedding_model_revision,
+            decision_model_revision=getattr(
+                decision_provider,
+                "model",
+                getattr(decision_provider, "provider_version", None),
+            ),
+        )
 
         rows = []
         for case in queries:
@@ -111,9 +140,14 @@ def run_benchmark(
                     "recall_at_k": (1.0 if no_answer_correct else 0.0) if no_answer else len(set(hits)) / max(len(expected), 1),
                     "reciprocal_rank": 1 / first_hit_rank if first_hit_rank else 0.0,
                     "decision_provider": decision.provider if decision else None,
+                    "decision_provider_version": decision.provider_version if decision else None,
                     "decision_outcome": decision.outcome if decision else None,
+                    "decision_support_probability": decision.support_probability if decision else None,
                     "decision_confidence": decision.confidence if decision else None,
                     "decision_conflict_probability": decision.conflict_probability if decision else None,
+                    "decision_coverage": decision.coverage if decision else None,
+                    "decision_applicability": decision.applicability if decision else None,
+                    "decision_freshness": decision.freshness if decision else None,
                     "decision_latency_ms": decision.latency_ms if decision else None,
                     "decision_input_tokens": decision.input_tokens if decision else None,
                     "decision_cost_usd": decision.cost_usd if decision else None,
@@ -131,6 +165,7 @@ def run_benchmark(
     return {
         "strategy": strategy,
         "k": limit,
+        "manifest": manifest.to_dict(),
         "queries": len(rows),
         "answerable_queries": len(answerable_rows),
         "retrieval_hit_rate_answerable": mean(row["hit"] for row in answerable_rows) if answerable_rows else None,

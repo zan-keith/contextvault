@@ -18,13 +18,13 @@ On the seven-case diagnostic corpus, hybrid retrieval plus Jev correctly handled
 - **The dataset is tiny and project-authored.** Seven examples can reveal bugs but cannot establish production quality.
 - **No independent holdout set exists.** Thresholds and design choices need testing against cases not used during implementation.
 - **No conflict benchmark exists.** Jev's `review` path needs current versus superseded and genuinely incompatible source cases.
-- **Retrieval is not scalable yet.** FastEmbed currently embeds every metadata-eligible chunk during a query; there is no persisted vector index or background indexing.
+- **Persistent vectors, but not ANN yet.** FastEmbed document vectors are now stored in SQLite by `(chunk_id, model revision)` and reused across queries and process restarts. The current candidate scan still walks metadata-eligible chunks, so a real ANN/vector index remains a later scale milestone.
 - **There is no answer-writing model yet.** Jev verifies evidence; it does not produce a user-facing prose answer. The next layer needs citation-preserving generation.
-- **No latency/cost telemetry exists.** OpenRouter is an external billed dependency, so production needs timing, error, and usage metrics before broad rollout.
+- **No latency/cost telemetry exists for retrieval itself.** OpenRouter decision calls now have timing, failure, token, and cost telemetry; production still needs repeated runs and embedding/index measurements before broad rollout.
 
 ## Next evidence to collect
 
 1. Build a larger held-out set with paraphrases, wrong-product distractors, stale documents, conflicts, and no-answer questions. The checked-in robust-text corpus now exercises those categories, but it remains project-authored and too small to be a holdout claim.
 2. Benchmark retrieval, Jev evidence decisions, end-to-end outcomes, latency, and external-call failure fallback separately.
-3. Persist embeddings and use vector indexing once the corpus is large enough that per-query embedding is no longer acceptable.
+3. Replace the current metadata-eligible candidate scan with an ANN/vector index once corpus scale requires it.
 4. Add a cited answer layer only after the evidence gate remains reliable on held-out data.

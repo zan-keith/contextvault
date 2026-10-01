@@ -21,7 +21,7 @@ Hierarchical summaries are a valid later direction for long documents. RAPTOR co
 - `fts`: SQLite FTS5 plus exact metadata filters. This is the transparent baseline.
 - `hybrid`: the same metadata boundary plus FTS contribution and local FastEmbed cosine similarity. It uses `BAAI/bge-small-en-v1.5` on CPU and rejects semantic-only candidates below the configured 0.65 similarity gate.
 
-FastEmbed downloads the public embedding model on its first hybrid request. The model is cached locally afterwards. If model initialisation or inference fails, ContextVault returns the FTS candidates with `retrieval_strategy: "fts_fallback"` instead of falsely reporting semantic results.
+FastEmbed downloads the public embedding model on its first hybrid request. Query vectors are computed per request; document vectors are persisted in SQLite under the embedding model cache key and reused for later queries. If model initialisation or inference fails, ContextVault returns the FTS candidates with `retrieval_strategy: "fts_fallback"` instead of falsely reporting semantic results.
 
 
 ```bash

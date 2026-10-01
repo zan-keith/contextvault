@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import os
 from collections.abc import Sequence
 from typing import Protocol
 
@@ -21,8 +22,10 @@ class FastEmbedProvider:
 
     name = "BAAI/bge-small-en-v1.5"
 
-    def __init__(self, model_name: str = name):
+    def __init__(self, model_name: str = name, model_revision: str | None = None):
         self.name = model_name
+        self.revision = model_revision or os.getenv("CONTEXTVAULT_EMBEDDING_MODEL_REVISION")
+        self.cache_key = f"{self.name}@{self.revision}" if self.revision else self.name
         self._model: TextEmbedding | None = None
 
     @property
@@ -98,7 +101,11 @@ class HybridRetriever:
         )
         lexical_rank = {result["chunk_id"]: rank for rank, result in enumerate(lexical, start=1)}
 
-        texts = [query, *[f"{candidate['description']}\n{candidate['text']}" for candidate in candidates]]
+        model = getattr(self.embedder, "cache_key", self.embedder.name)
+        chunk_ids = [int(candidate["chunk_id"]) for candidate in candidates]
+        cached_vectors = self.database.get_chunk_embeddings(chunk_ids, model)
+        missing_candidates = [candidate for candidate in candidates if int(candidate["chunk_id"]) not in cached_vectors]
+        texts = [query, *[f"{candidate['description']}\n{candidate['text']}" for candidate in missing_candidates]]
         try:
             vectors = self.embedder.embed(texts)
         except Exception:  # noqa: BLE001 - local FTS fallback must survive any embedding-provider failure
@@ -118,9 +125,24 @@ class HybridRetriever:
         if len(vectors) != len(texts):
             raise RuntimeError("Embedding provider returned an unexpected vector count")
         query_vector = vectors[0]
+        if missing_candidates:
+            missing_vectors = vectors[1:]
+            self.database.upsert_chunk_embeddings(
+                [
+                    (int(candidate["chunk_id"]), model, vector)
+                    for candidate, vector in zip(missing_candidates, missing_vectors)
+                ]
+            )
+            cached_vectors.update(
+                {
+                    int(candidate["chunk_id"]): vector
+                    for candidate, vector in zip(missing_candidates, missing_vectors)
+                }
+            )
 
         results = []
-        for candidate, vector in zip(candidates, vectors[1:]):
+        for candidate in candidates:
+            vector = cached_vectors[int(candidate["chunk_id"])]
             semantic_score = max(0.0, _cosine(query_vector, vector))
             rank = lexical_rank.get(candidate["chunk_id"])
             lexical_score = 1 / rank if rank else 0.0

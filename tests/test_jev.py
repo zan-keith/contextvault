@@ -50,6 +50,7 @@ def test_jev_provider_exposes_probabilities_and_honours_configured_thresholds():
     assert result.outcome == "answerable"
     assert result.confidence == 0.81
     assert result.conflict_probability == 0.75
+    assert result.provider_version == "typesafe/jev-1.13"
     assert result.latency_ms is not None
     assert result.latency_ms >= 0
 

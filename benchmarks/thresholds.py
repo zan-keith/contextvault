@@ -21,6 +21,15 @@ def _outcome(
     return "insufficient_evidence"
 
 
+def _support_probability(row: dict[str, Any]) -> float:
+    value = row.get("decision_support_probability")
+    if value is None:
+        value = row.get("decision_confidence")
+    if value is None:
+        raise ValueError("row does not contain a support probability")
+    return float(value)
+
+
 def summarize_thresholds(
     rows: list[dict[str, Any]],
     *,
@@ -32,7 +41,10 @@ def summarize_thresholds(
         row
         for row in rows
         if row.get("decision_error") is None
-        and row.get("decision_confidence") is not None
+        and (
+            row.get("decision_support_probability") is not None
+            or row.get("decision_confidence") is not None
+        )
         and row.get("decision_conflict_probability") is not None
     ]
     if not 0 <= conflict_threshold <= 1:
@@ -44,7 +56,7 @@ def summarize_thresholds(
             raise ValueError("answerability thresholds must be between 0 and 1")
         predictions = [
             _outcome(
-                float(row["decision_confidence"]),
+                float(_support_probability(row)),
                 float(row["decision_conflict_probability"]),
                 answerability_threshold=threshold,
                 conflict_threshold=conflict_threshold,
@@ -89,7 +101,7 @@ def summarize_thresholds(
                 ),
                 "brier_score": (
                     mean(
-                        (float(row["decision_confidence"]) - (1.0 if row["expected_outcome"] == "answerable" else 0.0)) ** 2
+                        (_support_probability(row) - (1.0 if row["expected_outcome"] == "answerable" else 0.0)) ** 2
                         for row in valid
                     )
                     if valid
@@ -107,16 +119,15 @@ def main() -> None:
     parser.add_argument("--conflict-threshold", type=float, default=0.7)
     args = parser.parse_args()
     payload = json.loads(args.input.read_text(encoding="utf-8"))
-    print(
-        json.dumps(
-            summarize_thresholds(
-                payload["cases"],
-                answerability_thresholds=args.thresholds,
-                conflict_threshold=args.conflict_threshold,
-            ),
-            indent=2,
-        )
-    )
+    report = {
+        "source_manifest": payload.get("manifest"),
+        "thresholds": summarize_thresholds(
+            payload["cases"],
+            answerability_thresholds=args.thresholds,
+            conflict_threshold=args.conflict_threshold,
+        ),
+    }
+    print(json.dumps(report, indent=2))
 
 
 if __name__ == "__main__":
