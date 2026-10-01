@@ -25,7 +25,11 @@ dependencies = [
 test = [
   "httpx>=0.27,<1",
   "pytest>=8,<9",
+  "ruff>=0.8,<1",
 ]
+
+[tool.ruff.lint]
+ignore = ["B008"]  # FastAPI dependency markers belong in endpoint defaults.
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

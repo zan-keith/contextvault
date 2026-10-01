@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-
 from typing import Literal
 
-from fastapi import Depends, File, FastAPI, Form, HTTPException, Request, UploadFile, status
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile, status
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.db import Database

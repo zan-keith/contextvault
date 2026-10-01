@@ -7,7 +7,7 @@ import re
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, replace
-from typing import Any, Protocol
+from typing import Any, ClassVar, Protocol
 
 
 @dataclass(frozen=True)
@@ -27,7 +27,7 @@ class RuleDecisionProvider:
     """Transparent local fallback used for tests and development."""
 
     provider_name = "rules"
-    _stopwords = {"a", "an", "and", "are", "do", "for", "how", "i", "is", "the", "to", "what"}
+    _stopwords: ClassVar[set[str]] = {"a", "an", "and", "are", "do", "for", "how", "i", "is", "the", "to", "what"}
 
     @classmethod
     def _terms(cls, value: str) -> set[str]:
@@ -189,7 +189,7 @@ class FallbackDecisionProvider:
     async def evaluate(self, question: str, candidates: list[dict[str, Any]]) -> DecisionResult:
         try:
             return await self.primary.evaluate(question, candidates)
-        except Exception as exc:  # external provider failures must not break local retrieval
+        except Exception as exc:  # noqa: BLE001 - primary adapters must never break query retrieval
             fallback_result = await self.fallback.evaluate(question, candidates)
             return replace(
                 fallback_result,

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import math
-from typing import Protocol, Sequence
+from collections.abc import Sequence
+from typing import Protocol
 
 from fastembed import TextEmbedding
 
@@ -100,7 +101,7 @@ class HybridRetriever:
         texts = [query, *[f"{candidate['description']}\n{candidate['text']}" for candidate in candidates]]
         try:
             vectors = self.embedder.embed(texts)
-        except Exception:
+        except Exception:  # noqa: BLE001 - local FTS fallback must survive any embedding-provider failure
             fallback = []
             for result in lexical[:limit]:
                 fallback.append(

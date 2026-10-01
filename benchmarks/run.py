@@ -10,7 +10,6 @@ from typing import Any
 from app.db import Database
 from app.retrieval import FastEmbedProvider, HybridRetriever
 
-
 ROOT = Path(__file__).parent
 
 

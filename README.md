@@ -11,19 +11,32 @@ The first slice deliberately uses:
 - paragraph-preserving chunks with source references
 - tests and benchmarks that establish retrieval behaviour before adding a remote model provider
 
-The intended later architecture is hybrid retrieval plus a replaceable semantic decision provider. Jev is an optional reranking/answerability component, not the database or the primary retriever.
+The intended architecture is hybrid retrieval plus a replaceable semantic decision provider. Jev is an optional answerability component, not the database or the primary retriever.
 
 ## Local development
 
 ```bash
-uv venv
-uv pip install -e '.[test]'
-pytest
-uvicorn app.main:app --reload
+uv sync --extra test
+make lint
+make test
+make serve
 ```
 
 The default database is `contextvault.db`. Override it with `CONTEXTVAULT_DB`.
 
+## Try the end-to-end demo
+
+```bash
+uv run python examples/local_demo.py
+```
+
+The demo creates a temporary local database, ingests a maintenance document through the HTTP API, and runs an FTS query. It performs no network call or permanent write.
+
+## API
+
+Start a local server with `make serve`, then visit [interactive docs](http://127.0.0.1:8000/docs), use the checked-in [OpenAPI schema](docs/openapi.json), or follow the copyable calls in [API examples](docs/api.md).
+
+## Benchmarks
 ```bash
 uv run python -m benchmarks.run --strategy fts
 uv run python -m benchmarks.run --strategy hybrid

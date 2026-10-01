@@ -2,7 +2,6 @@ import asyncio
 import json
 
 from app.decisions import (
-    DecisionResult,
     FallbackDecisionProvider,
     JevDecisionProvider,
     RuleDecisionProvider,
