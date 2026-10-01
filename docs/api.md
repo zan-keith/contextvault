@@ -67,4 +67,4 @@ curl -X POST http://127.0.0.1:8000/queries \
   }'
 ```
 
-The response contains ranked evidence and a decision object. The decision provider is local rules by default; when `OPENROUTER_API_KEY` is set, ContextVault calls OpenRouter's Jev Decisions API using `typesafe/jev-1.13` and falls back to rules if the external call fails.
+The response contains ranked evidence and a decision object. The decision provider is local rules by default; when `OPENROUTER_API_KEY` is set, ContextVault calls OpenRouter's Jev Decisions API using `typesafe/jev-1.13` and falls back to rules if the external call fails. Hybrid question queries send a broad semantic candidate set to the decision provider; evidence is returned only for the `answerable` outcome.

@@ -44,6 +44,12 @@ def run_benchmark(
                 semantic_weight=1.0,
                 min_semantic_score=0.0,
             )
+        elif decision_provider:
+            hybrid_retriever = HybridRetriever(
+                db,
+                FastEmbedProvider(),
+                min_semantic_score=0.0,
+            )
         else:
             hybrid_retriever = HybridRetriever(db, FastEmbedProvider())
 

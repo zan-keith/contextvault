@@ -1,8 +1,45 @@
 from pathlib import Path
+from typing import Any
 
 from fastapi.testclient import TestClient
 
+from app.decisions import DecisionResult
 from app.main import create_app
+
+
+class ParaphraseEmbedder:
+    name = "test-paraphrase-embedder"
+
+    def embed(self, texts):
+        vectors = []
+        for text in texts:
+            if text.startswith("How do I renew encryption"):
+                vectors.append([1.0, 0.0])
+            elif "TLS certificate" in text:
+                vectors.append([0.62, 0.7846018098373212])
+            else:
+                vectors.append([0.1, 0.99498743710662])
+        return vectors
+
+
+class AcceptingDecisionProvider:
+    async def evaluate(self, _question: str, candidates: list[dict[str, Any]]) -> DecisionResult:
+        return DecisionResult(
+            outcome="answerable" if candidates else "insufficient_evidence",
+            confidence=1.0 if candidates else 0.0,
+            reasons=["test decision"],
+            provider="jev",
+        )
+
+
+class RejectingDecisionProvider:
+    async def evaluate(self, _question: str, _candidates: list[dict[str, Any]]) -> DecisionResult:
+        return DecisionResult(
+            outcome="insufficient_evidence",
+            confidence=1.0,
+            reasons=["test rejection"],
+            provider="jev",
+        )
 
 
 def test_file_ingestion_and_query_round_trip(tmp_path):
@@ -38,6 +75,70 @@ def test_file_ingestion_and_query_round_trip(tmp_path):
     assert body["decision"]["outcome"] == "answerable"
 
 
+
+
+def test_hybrid_query_sends_broader_semantic_candidates_to_decision_provider(tmp_path):
+    client = TestClient(
+        create_app(
+            tmp_path / "semantic.db",
+            decision_provider=AcceptingDecisionProvider(),
+            embedding_provider=ParaphraseEmbedder(),
+        )
+    )
+    client.post(
+        "/files",
+        json={
+            "name": "web-tls-deployment.txt",
+            "description": "Procedure for deploying a TLS certificate.",
+            "content": "Obtain the TLS certificate and install the certificate chain.",
+            "product": "web",
+            "version": "v2",
+            "document_type": "runbook",
+            "status": "active",
+        },
+    )
+
+    response = client.post(
+        "/queries",
+        json={
+            "question": "How do I renew encryption credentials for the public website?",
+            "product": "web",
+            "version": "v2",
+            "document_type": "runbook",
+            "strategy": "hybrid",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["decision"]["outcome"] == "answerable"
+    assert response.json()["results"][0]["name"] == "web-tls-deployment.txt"
+
+
+def test_query_hides_evidence_rejected_by_decision_provider(tmp_path):
+    client = TestClient(
+        create_app(tmp_path / "rejected.db", decision_provider=RejectingDecisionProvider())
+    )
+    client.post(
+        "/files",
+        json={
+            "name": "payment-runbook.txt",
+            "description": "Payment outage procedure",
+            "content": "Queue failed charges until the payment processor is healthy.",
+            "product": "billing",
+            "version": "v1",
+            "document_type": "runbook",
+            "status": "active",
+        },
+    )
+
+    response = client.post(
+        "/queries",
+        json={"question": "How should failed charges be handled?", "strategy": "fts"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["decision"]["outcome"] == "insufficient_evidence"
+    assert response.json()["results"] == []
 
 
 def test_text_file_upload_and_query(tmp_path):

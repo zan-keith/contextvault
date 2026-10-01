@@ -2,14 +2,14 @@
   "strategy": "hybrid",
   "k": 5,
   "queries": 7,
-  "hit_rate": 0.7142857142857143,
-  "precision_at_k": 0.8571428571428571,
+  "hit_rate": 0.8571428571428571,
+  "precision_at_k": 0.7857142857142857,
   "recall_at_k": 0.8571428571428571,
-  "mrr": 0.7142857142857143,
-  "no_answer_accuracy": 1,
+  "mrr": 0.8571428571428571,
+  "no_answer_accuracy": 0,
   "decision_provider": "jev",
   "decision_accuracy_against_evidence": 1,
-  "end_to_end_decision_accuracy": 0.8571428571428571,
+  "end_to_end_decision_accuracy": 1,
   "cases": [
     {
       "question": "How do we retry a payment after processor failure?",
@@ -54,17 +54,20 @@
       "expected_files": [
         "web-tls-deployment.txt"
       ],
-      "retrieved_files": [],
-      "hit": false,
+      "retrieved_files": [
+        "web-tls-deployment.txt",
+        "web-traffic-incident.txt"
+      ],
+      "hit": true,
       "no_answer": false,
       "no_answer_correct": false,
-      "precision_at_k": 0.0,
-      "recall_at_k": 0.0,
-      "reciprocal_rank": 0.0,
+      "precision_at_k": 0.5,
+      "recall_at_k": 1.0,
+      "reciprocal_rank": 1.0,
       "decision_provider": "jev",
-      "decision_outcome": "insufficient_evidence",
+      "decision_outcome": "answerable",
       "decision_correct_against_evidence": true,
-      "end_to_end_decision_correct": false
+      "end_to_end_decision_correct": true
     },
     {
       "question": "What support step helps a user regain access to their account?",
@@ -126,12 +129,18 @@
     {
       "question": "What is the recipe for sourdough bread?",
       "expected_files": [],
-      "retrieved_files": [],
+      "retrieved_files": [
+        "web-tls-deployment.txt",
+        "identity-password-reset.txt",
+        "billing-vendor-onboarding.txt",
+        "billing-retry-runbook.txt",
+        "people-leave-policy.txt"
+      ],
       "hit": false,
       "no_answer": true,
-      "no_answer_correct": true,
-      "precision_at_k": 1.0,
-      "recall_at_k": 1.0,
+      "no_answer_correct": false,
+      "precision_at_k": 0.0,
+      "recall_at_k": 0.0,
       "reciprocal_rank": 0.0,
       "decision_provider": "jev",
       "decision_outcome": "insufficient_evidence",

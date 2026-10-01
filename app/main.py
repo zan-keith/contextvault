@@ -57,9 +57,12 @@ def create_app(
         storage_root = str(Path(db_path).with_suffix(".files"))
     app.state.file_store = FileStore(storage_root)
     app.state.decision_provider = decision_provider or provider_from_environment()
-    app.state.hybrid_retriever = HybridRetriever(
+    embedder = embedding_provider or FastEmbedProvider()
+    app.state.hybrid_retriever = HybridRetriever(app.state.database, embedder)
+    app.state.evidence_retriever = HybridRetriever(
         app.state.database,
-        embedding_provider or FastEmbedProvider(),
+        embedder,
+        min_semantic_score=0.0,
     )
 
     def database(request: Request) -> Database:
@@ -70,6 +73,9 @@ def create_app(
 
     def hybrid_retriever(request: Request) -> HybridRetriever:
         return request.app.state.hybrid_retriever
+
+    def evidence_retriever(request: Request) -> HybridRetriever:
+        return request.app.state.evidence_retriever
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -157,10 +163,10 @@ def create_app(
         payload: QueryCreate,
         db: Database = Depends(database),
         provider: DecisionProvider = Depends(get_decision_provider),
-        retriever: HybridRetriever = Depends(hybrid_retriever),
+        evidence: HybridRetriever = Depends(evidence_retriever),
     ) -> dict:
         if payload.strategy == "hybrid":
-            results = retriever.search(
+            results = evidence.search(
                 payload.question,
                 product=payload.product,
                 version=payload.version,
@@ -176,6 +182,7 @@ def create_app(
                 limit=payload.limit,
             )
         decision = await provider.evaluate(payload.question, results)
+        visible_results = results if decision.outcome == "answerable" else []
         return {
             "query": payload.question,
             "strategy": payload.strategy,
@@ -185,7 +192,7 @@ def create_app(
                 "reasons": decision.reasons,
                 "provider": decision.provider,
             },
-            "results": results,
+            "results": visible_results,
         }
 
     return app
