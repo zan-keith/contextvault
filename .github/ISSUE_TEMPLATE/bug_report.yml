@@ -1,0 +1,26 @@
+name: Bug report
+description: Report a reproducible ContextVault defect
+labels: [bug]
+body:
+  - type: textarea
+    attributes:
+      label: What happened?
+      description: Include expected and actual behaviour.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Reproduction steps
+      placeholder: |
+        1. Start the app with ...
+        2. Upload ...
+        3. Query ...
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: ContextVault version or commit
+  - type: textarea
+    attributes:
+      label: Logs or response body
+      description: Remove API keys, private source text, and file paths before posting.

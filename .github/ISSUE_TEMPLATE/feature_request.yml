@@ -1,0 +1,19 @@
+name: Feature request
+description: Propose a user-visible improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    attributes:
+      label: Problem
+      description: Describe the retrieval or document-handling problem first.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Proposed behaviour
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Evaluation plan
+      description: Explain how tests or a benchmark would demonstrate the improvement.
