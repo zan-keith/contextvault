@@ -1,0 +1,31 @@
+[
+  {
+    "question": "What should I inspect after X200 calibration fails?",
+    "product": "X200",
+    "version": "B",
+    "document_type": "troubleshooting",
+    "expected_files": ["x200-calibration-b.txt"]
+  },
+  {
+    "question": "How do I install the X200 module?",
+    "product": "X200",
+    "version": "B",
+    "document_type": "manual",
+    "expected_files": ["x200-installation-b.txt"]
+  },
+  {
+    "question": "What sensor is involved in X300 calibration failures?",
+    "product": "X300",
+    "version": "B",
+    "document_type": "troubleshooting",
+    "expected_files": ["x300-calibration-b.txt"]
+  },
+  {
+    "question": "Which calibration documents mention a sensor?",
+    "expected_files": ["x200-calibration-b.txt", "x300-calibration-b.txt"]
+  },
+  {
+    "question": "How do I repair a quantum reactor?",
+    "expected_files": []
+  }
+]

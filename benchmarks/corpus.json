@@ -1,0 +1,38 @@
+[
+  {
+    "name": "x200-calibration-b.txt",
+    "description": "Active troubleshooting guide for X200 calibration and vacuum alarms, hardware revision B.",
+    "content": "If calibration fails on the X200 revision B handler, inspect the vacuum sensor and seal before retrying calibration.",
+    "product": "X200",
+    "version": "B",
+    "document_type": "troubleshooting",
+    "status": "active"
+  },
+  {
+    "name": "x200-installation-b.txt",
+    "description": "Installation procedure for the active X200 hardware revision B.",
+    "content": "Install the X200 module, connect the vacuum line, and run the initial setup procedure.",
+    "product": "X200",
+    "version": "B",
+    "document_type": "manual",
+    "status": "active"
+  },
+  {
+    "name": "x200-calibration-a.txt",
+    "description": "Superseded calibration guide for the previous X200 hardware revision A.",
+    "content": "For the previous revision A handler, inspect the calibration reference before adjustment.",
+    "product": "X200",
+    "version": "A",
+    "document_type": "troubleshooting",
+    "status": "superseded"
+  },
+  {
+    "name": "x300-calibration-b.txt",
+    "description": "Calibration guide for the X300 handler.",
+    "content": "For X300 calibration failures, inspect the optical alignment sensor.",
+    "product": "X300",
+    "version": "B",
+    "document_type": "troubleshooting",
+    "status": "active"
+  }
+]

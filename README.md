@@ -23,6 +23,12 @@ uvicorn app.main:app --reload
 
 The default database is `contextvault.db`. Override it with `CONTEXTVAULT_DB`.
 
+```bash
+uv run python -m benchmarks.run
+```
+
+The app uses the rules decision provider by default. Set `TYPESAFE_API_KEY` to enable the Jev adapter; it automatically falls back to rules if the external provider is unavailable. Never commit that key.
+
 ## Current API slice
 
 - `GET /health`

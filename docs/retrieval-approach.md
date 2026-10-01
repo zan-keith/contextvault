@@ -16,6 +16,14 @@ RAG evaluation should separate retrieval relevance, generation faithfulness, and
 
 Hierarchical summaries are a valid later direction for long documents. RAPTOR constructs representations at multiple abstraction levels, but ContextVault will not add that complexity until the baseline exposes a need: https://arxiv.org/abs/2401.18059
 
+## Run the benchmark
+
+```bash
+uv run python -m benchmarks.run
+```
+
+The checked-in baseline corpus and queries are intentionally small smoke data, not evidence of production accuracy. The latest local result is stored in `docs/baseline-results.json`; replace it with a larger labelled set before drawing conclusions about embeddings or Jev.
+
 ## Planned comparison
 
 1. Full-text search only.
