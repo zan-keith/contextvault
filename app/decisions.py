@@ -77,10 +77,11 @@ class RuleDecisionProvider:
 
 
 class JevDecisionProvider:
-    """Minimal adapter for TypeSafe's typed Jev decision endpoint.
+    """OpenRouter adapter for TypeSafe Jev's typed Decisions API.
 
-    The adapter is intentionally small and uses the standard library so the
-    local baseline remains usable without an API key or an extra SDK.
+    Jev verifies evidence sufficiency and conflicts; it deliberately does not
+    generate an answer. OpenRouter's `typesafe/jev-router` is reserved for a
+    separate future chat-model routing step.
     """
 
     provider_name = "jev"
@@ -89,8 +90,8 @@ class JevDecisionProvider:
         self,
         api_key: str,
         *,
-        base_url: str = "https://api.typesafe.ai/v1/systemone",
-        model: str = "jev-latest",
+        base_url: str = "https://openrouter.ai/api/alpha/decisions",
+        model: str = "typesafe/jev-1.13",
         timeout: float = 10.0,
     ):
         if not api_key.strip():
@@ -199,7 +200,7 @@ class FallbackDecisionProvider:
 
 
 def provider_from_environment() -> DecisionProvider:
-    api_key = os.getenv("TYPESAFE_API_KEY")
+    api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
         return RuleDecisionProvider()
     return FallbackDecisionProvider(JevDecisionProvider(api_key), RuleDecisionProvider())

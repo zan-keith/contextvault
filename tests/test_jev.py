@@ -5,6 +5,7 @@ from app.decisions import (
     FallbackDecisionProvider,
     JevDecisionProvider,
     RuleDecisionProvider,
+    provider_from_environment,
 )
 
 
@@ -27,7 +28,7 @@ def test_jev_provider_builds_typed_decision_request_without_network():
     assert result.provider == "jev"
     assert result.outcome == "answerable"
     assert result.confidence == 0.91
-    assert provider.request_body["model"] == "jev-latest"
+    assert provider.request_body["model"] == "typesafe/jev-1.13"
     assert provider.request_body["questions"]["answerable"]["type"] == "noul"
 
 
@@ -46,3 +47,13 @@ def test_jev_provider_falls_back_to_rules_on_provider_failure():
     assert result.provider == "rules-fallback"
     assert result.outcome == "answerable"
     assert "RuntimeError" in result.reasons[0]
+
+
+def test_provider_uses_openrouter_key_and_keeps_rules_fallback(monkeypatch):
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test-openrouter-key")
+
+    provider = provider_from_environment()
+
+    assert isinstance(provider, FallbackDecisionProvider)
+    assert isinstance(provider.primary, JevDecisionProvider)
+    assert isinstance(provider.fallback, RuleDecisionProvider)

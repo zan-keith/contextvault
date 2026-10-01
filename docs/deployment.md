@@ -7,13 +7,13 @@ docker compose up --build
 curl http://localhost:8000/health
 ```
 
-The SQLite database and uploaded originals live in the `contextvault-data` volume. Back up that volume before upgrades. The container uses the rules provider unless `TYPESAFE_API_KEY` is supplied through the environment.
+The SQLite database and uploaded originals live in the `contextvault-data` volume. Back up that volume before upgrades. The container uses the rules provider unless `OPENROUTER_API_KEY` is supplied through the environment.
 
 ## Configuration
 
 - `CONTEXTVAULT_DB`: SQLite database path; default `contextvault.db` outside the container.
 - `CONTEXTVAULT_STORAGE_DIR`: original-file storage directory.
-- `TYPESAFE_API_KEY`: optional Jev credential. Never put it in `.env` committed to Git or in an image layer.
+- `OPENROUTER_API_KEY`: optional OpenRouter credential for Jev Decisions (`typesafe/jev-1.13`). Never put it in `.env` committed to Git or in an image layer.
 
 ## Current security boundary
 

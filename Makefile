@@ -19,7 +19,7 @@ benchmark-hybrid:
 	uv run python -m benchmarks.run --strategy hybrid
 
 serve:
-	uv run uvicorn app.main:app --reload
+	@if [ -f .env ]; then uv run --env-file .env uvicorn app.main:app --reload; else uv run uvicorn app.main:app --reload; fi
 
 openapi:
 	uv run python scripts/export_openapi.py

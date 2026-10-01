@@ -45,7 +45,7 @@ uv run python -m benchmarks.run --strategy hybrid
 
 See the [basic-text evaluation](docs/basic-text-evaluation.md) for the current, deliberately limited FTS/dense/hybrid comparison and its caveats.
 
-The app uses the rules decision provider by default. Set `TYPESAFE_API_KEY` to enable the Jev adapter; it automatically falls back to rules if the external provider is unavailable. Never commit that key.
+The app uses the rules decision provider by default. Set `OPENROUTER_API_KEY` to enable the OpenRouter Jev Decisions adapter (`typesafe/jev-1.13`); it automatically falls back to rules if the external provider is unavailable. Never commit that key. `typesafe/jev-router` is reserved for a future answer-generation routing step.
 
 ## Container
 
