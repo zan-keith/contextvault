@@ -156,6 +156,7 @@ class Database:
         *,
         product: str | None = None,
         version: str | None = None,
+        document_type: str | None = None,
         limit: int = 10,
     ) -> list[dict[str, Any]]:
         fts_query = self._fts_query(query)
@@ -170,6 +171,9 @@ class Database:
         if version:
             clauses.append("fts.version = ?")
             parameters.append(version)
+        if document_type:
+            clauses.append("files.document_type = ?")
+            parameters.append(document_type)
         parameters.append(max(1, min(limit, 50)))
 
         sql = f"""
@@ -182,8 +186,10 @@ class Database:
                 fts.product AS product,
                 fts.version AS version,
                 fts.status AS status,
+                files.document_type AS document_type,
                 bm25(chunks_fts) AS search_score
             FROM chunks_fts AS fts
+            JOIN files ON files.id = fts.file_id
             WHERE {' AND '.join(clauses)}
             ORDER BY search_score ASC
             LIMIT ?
