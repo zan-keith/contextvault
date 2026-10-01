@@ -18,6 +18,9 @@ benchmark-dense:
 benchmark-hybrid:
 	uv run python -m benchmarks.run --strategy hybrid
 
+benchmark-jev:
+	uv run --env-file .env python -m benchmarks.run --strategy hybrid --decision-provider jev
+
 serve:
 	@if [ -f .env ]; then uv run --env-file .env uvicorn app.main:app --reload; else uv run uvicorn app.main:app --reload; fi
 

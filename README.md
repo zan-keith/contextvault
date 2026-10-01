@@ -41,9 +41,10 @@ Start a local server with `make serve`, then visit [interactive docs](http://127
 uv run python -m benchmarks.run --strategy fts
 uv run python -m benchmarks.run --strategy dense
 uv run python -m benchmarks.run --strategy hybrid
+uv run --env-file .env python -m benchmarks.run --strategy hybrid --decision-provider jev
 ```
 
-See the [basic-text evaluation](docs/basic-text-evaluation.md) for the current, deliberately limited FTS/dense/hybrid comparison and its caveats.
+See the [basic-text evaluation](docs/basic-text-evaluation.md) for the current, deliberately limited FTS/dense/hybrid comparison and its caveats. See the [live Jev evaluation](docs/live-jev-evaluation.md) for the decision-layer comparison.
 
 The app uses the rules decision provider by default. Set `OPENROUTER_API_KEY` to enable the OpenRouter Jev Decisions adapter (`typesafe/jev-1.13`); it automatically falls back to rules if the external provider is unavailable. Never commit that key. `typesafe/jev-router` is reserved for a future answer-generation routing step.
 
