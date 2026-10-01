@@ -29,6 +29,14 @@ uv run python -m benchmarks.run
 
 The app uses the rules decision provider by default. Set `TYPESAFE_API_KEY` to enable the Jev adapter; it automatically falls back to rules if the external provider is unavailable. Never commit that key.
 
+## Container
+
+```bash
+docker compose up --build
+```
+
+See `docs/deployment.md` for configuration, security boundaries, and the production hardening list.
+
 ## Current API slice
 
 - `GET /health`

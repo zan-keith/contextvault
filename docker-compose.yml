@@ -1,0 +1,16 @@
+services:
+  contextvault:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      CONTEXTVAULT_DB: /data/contextvault.db
+      CONTEXTVAULT_STORAGE_DIR: /data/files
+      # Optional. Leave unset to use the deterministic rules provider.
+      TYPESAFE_API_KEY: ${TYPESAFE_API_KEY:-}
+    volumes:
+      - contextvault-data:/data
+    restart: unless-stopped
+
+volumes:
+  contextvault-data:
