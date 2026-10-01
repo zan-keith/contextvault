@@ -40,8 +40,8 @@ This comparison supports a narrow claim: on this exact 16-case diagnostic set, l
 
 | Configuration | p50 decision latency | p95 decision latency | Input tokens | Reported total cost |
 | --- | ---: | ---: | ---: | ---: |
-| Dense + Jev | 296.68 ms | 508.86 ms | 8,933 | $0.000375186 |
-| Hybrid + Jev | 288.09 ms | 383.64 ms | 8,947 | $0.000375774 |
+| Dense + Jev | 280.61 ms | 904.80 ms | 8,933 | $0.000375186 |
+| Hybrid + Jev | 289.72 ms | 378.36 ms | 8,947 | $0.000375774 |
 
 These are one local live run against OpenRouter's Decisions API, not latency or cost service-level objectives.
 
