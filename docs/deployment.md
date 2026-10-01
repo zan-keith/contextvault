@@ -28,5 +28,5 @@ The current API returns a local `source_uri` for development traceability. A hos
 3. Add upload size limits and malware scanning.
 4. Add a queue for extraction and model calls.
 5. Add rate limits, structured logs, metrics, backups, and migrations.
-6. Add OCR in a separate worker for scanned PDFs.
+6. Move synchronous OCR into a separate worker with page and resource limits.
 7. Expand the labelled retrieval benchmark before changing ranking logic.

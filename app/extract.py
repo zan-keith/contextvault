@@ -5,6 +5,8 @@ from pathlib import Path
 
 from pypdf import PdfReader
 
+from app.ocr import OcrUnavailable, extract_pdf_ocr
+
 
 class UnsupportedDocument(ValueError):
     """Raised when a document has no usable text representation."""
@@ -19,7 +21,10 @@ def extract_text(filename: str, content: bytes) -> str:
         except Exception as exc:
             raise UnsupportedDocument("PDF could not be parsed") from exc
         if not text.strip():
-            raise UnsupportedDocument("PDF has no extractable text; OCR is not implemented")
+            try:
+                return extract_pdf_ocr(content)
+            except OcrUnavailable as exc:
+                raise UnsupportedDocument(str(exc)) from exc
         return text.strip()
 
     try:
