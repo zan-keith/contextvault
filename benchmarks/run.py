@@ -75,8 +75,9 @@ def run_benchmark(
             names = [result["name"] for result in results]
             hits = [name for name in names if name in expected]
             decision = asyncio.run(decision_provider.evaluate(case["question"], results)) if decision_provider else None
-            evidence_target = "answerable" if hits else "insufficient_evidence"
-            end_to_end_target = "answerable" if expected else "insufficient_evidence"
+            labeled_outcome = case.get("expected_outcome")
+            evidence_target = labeled_outcome or ("answerable" if hits else "insufficient_evidence")
+            end_to_end_target = labeled_outcome or ("answerable" if expected else "insufficient_evidence")
             no_answer = not expected
             no_answer_correct = no_answer and not names
             first_hit_rank = next((index + 1 for index, name in enumerate(names) if name in expected), None)

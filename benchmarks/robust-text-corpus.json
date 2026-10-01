@@ -1,0 +1,101 @@
+[
+  {
+    "name": "finance-capture-outage.txt",
+    "description": "Runbook for card capture failures during issuer or acquirer outages.",
+    "content": "When a card capture cannot reach the payment network, retain the authorization and enqueue the capture for retry after the provider health check recovers.",
+    "product": "finance",
+    "version": "v2",
+    "document_type": "runbook",
+    "status": "active"
+  },
+  {
+    "name": "finance-duplicate-invoice.txt",
+    "description": "Procedure for duplicate invoice reports.",
+    "content": "Investigate duplicate invoice reports by comparing invoice identifiers, settlement references, and invoice creation timestamps before issuing a credit.",
+    "product": "finance",
+    "version": "v2",
+    "document_type": "runbook",
+    "status": "active"
+  },
+  {
+    "name": "finance-capture-legacy.txt",
+    "description": "Retired gateway capture procedure.",
+    "content": "For the retired gateway, staff manually resubmit card captures at the end of each day.",
+    "product": "finance",
+    "version": "v0",
+    "document_type": "runbook",
+    "status": "superseded"
+  },
+  {
+    "name": "web-certificate-rotation.txt",
+    "description": "Procedure for rotating a public HTTPS certificate.",
+    "content": "Create a certificate signing request, obtain the replacement certificate, install the full chain, and verify the renewal monitor.",
+    "product": "web",
+    "version": "v5",
+    "document_type": "runbook",
+    "status": "active"
+  },
+  {
+    "name": "web-deployment-rollback.txt",
+    "description": "Rollback procedure after a faulty web deployment.",
+    "content": "If a deployment raises the web error rate, freeze further releases, collect the deployment identifier, and roll back to the last healthy release.",
+    "product": "web",
+    "version": "v5",
+    "document_type": "runbook",
+    "status": "active"
+  },
+  {
+    "name": "identity-mfa-recovery.txt",
+    "description": "Account recovery for a lost multi-factor device.",
+    "content": "After verifying identity through the approved recovery channel, remove the lost authenticator and require enrollment of a new factor at the next sign-in.",
+    "product": "identity",
+    "version": "v4",
+    "document_type": "runbook",
+    "status": "active"
+  },
+  {
+    "name": "people-leave-carryover.txt",
+    "description": "Annual leave carryover policy.",
+    "content": "Employees may move up to three unused leave days into the next calendar year with manager approval. Carried days expire on 31 March.",
+    "product": "people",
+    "version": "v2",
+    "document_type": "policy",
+    "status": "active"
+  },
+  {
+    "name": "shipping-missing-parcel.txt",
+    "description": "Investigation steps for a shipment not delivered to a customer.",
+    "content": "For a parcel reported missing, verify the tracking scan history, delivery address, proof of delivery, and carrier exception status before opening a claim.",
+    "product": "shipping",
+    "version": "v3",
+    "document_type": "runbook",
+    "status": "active"
+  },
+  {
+    "name": "data-access-log-retention.txt",
+    "description": "Data retention policy for access logs.",
+    "content": "Retain application access logs for ninety days, then delete them unless a legal hold is active.",
+    "product": "data",
+    "version": "v1",
+    "document_type": "policy",
+    "status": "active"
+  },
+  {
+    "name": "edge-router-restart.txt",
+    "description": "Edge router outage response guidance.",
+    "content": "When the edge router stops forwarding traffic, collect diagnostic logs and then restart the router once.",
+    "product": "edge",
+    "version": "v1",
+    "document_type": "runbook",
+    "status": "active"
+  },
+  {
+    "name": "edge-router-failover.txt",
+    "description": "Edge router outage response guidance.",
+    "content": "When the edge router stops forwarding traffic, never restart it; divert traffic to the standby router and escalate to network operations.",
+    "product": "edge",
+    "version": "v1",
+    "document_type": "runbook",
+    "status": "active"
+  }
+]

@@ -1,0 +1,115 @@
+[
+  {
+    "id": "payment-network-paraphrase",
+    "question": "What should happen to a card charge when the banking network cannot be reached?",
+    "product": "finance",
+    "version": "v2",
+    "document_type": "runbook",
+    "expected_files": [
+      "finance-capture-outage.txt"
+    ]
+  },
+  {
+    "id": "duplicate-bill",
+    "question": "How should support investigate a customer billed twice?",
+    "product": "finance",
+    "version": "v2",
+    "document_type": "runbook",
+    "expected_files": [
+      "finance-duplicate-invoice.txt"
+    ]
+  },
+  {
+    "id": "certificate-paraphrase",
+    "question": "How do I replace the cryptographic certificate used by our public website?",
+    "product": "web",
+    "version": "v5",
+    "document_type": "runbook",
+    "expected_files": [
+      "web-certificate-rotation.txt"
+    ]
+  },
+  {
+    "id": "bad-release",
+    "question": "What is the safe response when a new website release causes many errors?",
+    "product": "web",
+    "version": "v5",
+    "document_type": "runbook",
+    "expected_files": [
+      "web-deployment-rollback.txt"
+    ]
+  },
+  {
+    "id": "lost-second-factor",
+    "question": "A user changed phones and cannot provide their login verification code. What recovery process applies?",
+    "product": "identity",
+    "version": "v4",
+    "document_type": "runbook",
+    "expected_files": [
+      "identity-mfa-recovery.txt"
+    ]
+  },
+  {
+    "id": "leave-carryover",
+    "question": "Can staff take unused holiday entitlement into another year?",
+    "product": "people",
+    "version": "v2",
+    "document_type": "policy",
+    "expected_files": [
+      "people-leave-carryover.txt"
+    ]
+  },
+  {
+    "id": "parcel-not-arrived",
+    "question": "What should we check when a customer says their package never arrived?",
+    "product": "shipping",
+    "version": "v3",
+    "document_type": "runbook",
+    "expected_files": [
+      "shipping-missing-parcel.txt"
+    ]
+  },
+  {
+    "id": "log-expiry",
+    "question": "For how long are application sign-in logs kept?",
+    "product": "data",
+    "version": "v1",
+    "document_type": "policy",
+    "expected_files": [
+      "data-access-log-retention.txt"
+    ]
+  },
+  {
+    "id": "wrong-product-trap",
+    "question": "How should a failed card capture be handled?",
+    "product": "web",
+    "version": "v5",
+    "document_type": "runbook",
+    "expected_files": []
+  },
+  {
+    "id": "legacy-trap",
+    "question": "How are failed card captures handled by the retired gateway?",
+    "product": "finance",
+    "version": "v0",
+    "document_type": "runbook",
+    "expected_files": []
+  },
+  {
+    "id": "recipe-no-answer",
+    "question": "What temperature should I bake sourdough at?",
+    "expected_files": []
+  },
+  {
+    "id": "edge-router-conflict",
+    "question": "What should we do when the edge router stops forwarding traffic?",
+    "product": "edge",
+    "version": "v1",
+    "document_type": "runbook",
+    "expected_files": [
+      "edge-router-restart.txt",
+      "edge-router-failover.txt"
+    ],
+    "expected_outcome": "review"
+  }
+]

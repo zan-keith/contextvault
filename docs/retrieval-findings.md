@@ -24,7 +24,7 @@ On the seven-case diagnostic corpus, hybrid retrieval plus Jev correctly handled
 
 ## Next evidence to collect
 
-1. Build a larger held-out set with paraphrases, wrong-product distractors, stale documents, conflicts, and no-answer questions.
+1. Build a larger held-out set with paraphrases, wrong-product distractors, stale documents, conflicts, and no-answer questions. The checked-in robust-text corpus now exercises those categories, but it remains project-authored and too small to be a holdout claim.
 2. Benchmark retrieval, Jev evidence decisions, end-to-end outcomes, latency, and external-call failure fallback separately.
 3. Persist embeddings and use vector indexing once the corpus is large enough that per-query embedding is no longer acceptable.
 4. Add a cited answer layer only after the evidence gate remains reliable on held-out data.

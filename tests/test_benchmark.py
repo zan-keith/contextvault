@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from app.decisions import DecisionResult
@@ -97,3 +98,52 @@ def test_benchmark_uses_broader_hybrid_candidates_when_a_decision_judge_is_prese
     )
 
     assert captured == {"min_semantic_score": 0.0}
+
+
+def test_benchmark_honours_a_labeled_review_outcome(tmp_path):
+    corpus_path = tmp_path / "corpus.json"
+    queries_path = tmp_path / "queries.json"
+    corpus_path.write_text(
+        json.dumps(
+            [
+                {
+                    "name": "router-a.txt",
+                    "description": "Edge router incident guidance",
+                    "content": "Restart the edge router after collecting logs.",
+                    "product": "edge",
+                    "version": "v1",
+                    "document_type": "runbook",
+                    "status": "active",
+                },
+                {
+                    "name": "router-b.txt",
+                    "description": "Edge router incident guidance",
+                    "content": "Never restart the edge router; fail traffic to standby.",
+                    "product": "edge",
+                    "version": "v1",
+                    "document_type": "runbook",
+                    "status": "active",
+                },
+            ]
+        )
+    )
+    queries_path.write_text(
+        json.dumps(
+            [
+                {
+                    "question": "What should we do when the edge router fails?",
+                    "expected_files": ["router-a.txt", "router-b.txt"],
+                    "expected_outcome": "review",
+                }
+            ]
+        )
+    )
+
+    class ReviewJudge:
+        async def evaluate(self, _question, _candidates):
+            return DecisionResult("review", 1.0, ["conflict"], "review-judge")
+
+    result = run_benchmark(corpus_path, queries_path, decision_provider=ReviewJudge())
+
+    assert result["decision_accuracy_against_evidence"] == 1.0
+    assert result["end_to_end_decision_accuracy"] == 1.0

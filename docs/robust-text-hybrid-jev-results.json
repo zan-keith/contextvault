@@ -1,0 +1,246 @@
+{
+  "strategy": "hybrid",
+  "k": 5,
+  "queries": 12,
+  "hit_rate": 0.75,
+  "precision_at_k": 0.6666666666666666,
+  "recall_at_k": 0.8333333333333334,
+  "mrr": 0.75,
+  "no_answer_accuracy": 0.3333333333333333,
+  "decision_provider": "jev",
+  "decision_accuracy_against_evidence": 1,
+  "end_to_end_decision_accuracy": 1,
+  "cases": [
+    {
+      "question": "What should happen to a card charge when the banking network cannot be reached?",
+      "expected_files": [
+        "finance-capture-outage.txt"
+      ],
+      "retrieved_files": [
+        "finance-capture-outage.txt",
+        "finance-duplicate-invoice.txt"
+      ],
+      "hit": true,
+      "no_answer": false,
+      "no_answer_correct": false,
+      "precision_at_k": 0.5,
+      "recall_at_k": 1.0,
+      "reciprocal_rank": 1.0,
+      "decision_provider": "jev",
+      "decision_outcome": "answerable",
+      "decision_correct_against_evidence": true,
+      "end_to_end_decision_correct": true
+    },
+    {
+      "question": "How should support investigate a customer billed twice?",
+      "expected_files": [
+        "finance-duplicate-invoice.txt"
+      ],
+      "retrieved_files": [
+        "finance-duplicate-invoice.txt",
+        "finance-capture-outage.txt"
+      ],
+      "hit": true,
+      "no_answer": false,
+      "no_answer_correct": false,
+      "precision_at_k": 0.5,
+      "recall_at_k": 1.0,
+      "reciprocal_rank": 1.0,
+      "decision_provider": "jev",
+      "decision_outcome": "answerable",
+      "decision_correct_against_evidence": true,
+      "end_to_end_decision_correct": true
+    },
+    {
+      "question": "How do I replace the cryptographic certificate used by our public website?",
+      "expected_files": [
+        "web-certificate-rotation.txt"
+      ],
+      "retrieved_files": [
+        "web-certificate-rotation.txt",
+        "web-deployment-rollback.txt"
+      ],
+      "hit": true,
+      "no_answer": false,
+      "no_answer_correct": false,
+      "precision_at_k": 0.5,
+      "recall_at_k": 1.0,
+      "reciprocal_rank": 1.0,
+      "decision_provider": "jev",
+      "decision_outcome": "answerable",
+      "decision_correct_against_evidence": true,
+      "end_to_end_decision_correct": true
+    },
+    {
+      "question": "What is the safe response when a new website release causes many errors?",
+      "expected_files": [
+        "web-deployment-rollback.txt"
+      ],
+      "retrieved_files": [
+        "web-deployment-rollback.txt",
+        "web-certificate-rotation.txt"
+      ],
+      "hit": true,
+      "no_answer": false,
+      "no_answer_correct": false,
+      "precision_at_k": 0.5,
+      "recall_at_k": 1.0,
+      "reciprocal_rank": 1.0,
+      "decision_provider": "jev",
+      "decision_outcome": "answerable",
+      "decision_correct_against_evidence": true,
+      "end_to_end_decision_correct": true
+    },
+    {
+      "question": "A user changed phones and cannot provide their login verification code. What recovery process applies?",
+      "expected_files": [
+        "identity-mfa-recovery.txt"
+      ],
+      "retrieved_files": [
+        "identity-mfa-recovery.txt"
+      ],
+      "hit": true,
+      "no_answer": false,
+      "no_answer_correct": false,
+      "precision_at_k": 1.0,
+      "recall_at_k": 1.0,
+      "reciprocal_rank": 1.0,
+      "decision_provider": "jev",
+      "decision_outcome": "answerable",
+      "decision_correct_against_evidence": true,
+      "end_to_end_decision_correct": true
+    },
+    {
+      "question": "Can staff take unused holiday entitlement into another year?",
+      "expected_files": [
+        "people-leave-carryover.txt"
+      ],
+      "retrieved_files": [
+        "people-leave-carryover.txt"
+      ],
+      "hit": true,
+      "no_answer": false,
+      "no_answer_correct": false,
+      "precision_at_k": 1.0,
+      "recall_at_k": 1.0,
+      "reciprocal_rank": 1.0,
+      "decision_provider": "jev",
+      "decision_outcome": "answerable",
+      "decision_correct_against_evidence": true,
+      "end_to_end_decision_correct": true
+    },
+    {
+      "question": "What should we check when a customer says their package never arrived?",
+      "expected_files": [
+        "shipping-missing-parcel.txt"
+      ],
+      "retrieved_files": [
+        "shipping-missing-parcel.txt"
+      ],
+      "hit": true,
+      "no_answer": false,
+      "no_answer_correct": false,
+      "precision_at_k": 1.0,
+      "recall_at_k": 1.0,
+      "reciprocal_rank": 1.0,
+      "decision_provider": "jev",
+      "decision_outcome": "answerable",
+      "decision_correct_against_evidence": true,
+      "end_to_end_decision_correct": true
+    },
+    {
+      "question": "For how long are application sign-in logs kept?",
+      "expected_files": [
+        "data-access-log-retention.txt"
+      ],
+      "retrieved_files": [
+        "data-access-log-retention.txt"
+      ],
+      "hit": true,
+      "no_answer": false,
+      "no_answer_correct": false,
+      "precision_at_k": 1.0,
+      "recall_at_k": 1.0,
+      "reciprocal_rank": 1.0,
+      "decision_provider": "jev",
+      "decision_outcome": "answerable",
+      "decision_correct_against_evidence": true,
+      "end_to_end_decision_correct": true
+    },
+    {
+      "question": "How should a failed card capture be handled?",
+      "expected_files": [],
+      "retrieved_files": [
+        "web-deployment-rollback.txt",
+        "web-certificate-rotation.txt"
+      ],
+      "hit": false,
+      "no_answer": true,
+      "no_answer_correct": false,
+      "precision_at_k": 0.0,
+      "recall_at_k": 0.0,
+      "reciprocal_rank": 0.0,
+      "decision_provider": "jev",
+      "decision_outcome": "insufficient_evidence",
+      "decision_correct_against_evidence": true,
+      "end_to_end_decision_correct": true
+    },
+    {
+      "question": "How are failed card captures handled by the retired gateway?",
+      "expected_files": [],
+      "retrieved_files": [],
+      "hit": false,
+      "no_answer": true,
+      "no_answer_correct": true,
+      "precision_at_k": 1.0,
+      "recall_at_k": 1.0,
+      "reciprocal_rank": 0.0,
+      "decision_provider": "jev",
+      "decision_outcome": "insufficient_evidence",
+      "decision_correct_against_evidence": true,
+      "end_to_end_decision_correct": true
+    },
+    {
+      "question": "What temperature should I bake sourdough at?",
+      "expected_files": [],
+      "retrieved_files": [
+        "identity-mfa-recovery.txt",
+        "data-access-log-retention.txt",
+        "people-leave-carryover.txt",
+        "web-certificate-rotation.txt",
+        "shipping-missing-parcel.txt"
+      ],
+      "hit": false,
+      "no_answer": true,
+      "no_answer_correct": false,
+      "precision_at_k": 0.0,
+      "recall_at_k": 0.0,
+      "reciprocal_rank": 0.0,
+      "decision_provider": "jev",
+      "decision_outcome": "insufficient_evidence",
+      "decision_correct_against_evidence": true,
+      "end_to_end_decision_correct": true
+    },
+    {
+      "question": "What should we do when the edge router stops forwarding traffic?",
+      "expected_files": [
+        "edge-router-failover.txt",
+        "edge-router-restart.txt"
+      ],
+      "retrieved_files": [
+        "edge-router-failover.txt",
+        "edge-router-restart.txt"
+      ],
+      "hit": true,
+      "no_answer": false,
+      "no_answer_correct": false,
+      "precision_at_k": 1.0,
+      "recall_at_k": 1.0,
+      "reciprocal_rank": 1.0,
+      "decision_provider": "jev",
+      "decision_outcome": "review",
+      "decision_correct_against_evidence": true,
+      "end_to_end_decision_correct": true
+    }
+  ]
+}
