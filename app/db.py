@@ -9,6 +9,30 @@ from typing import Any
 class Database:
     """Small SQLite-backed repository for the first retrieval baseline."""
 
+    _fts_stopwords = frozenset(
+        {
+            "a",
+            "an",
+            "and",
+            "are",
+            "can",
+            "do",
+            "for",
+            "how",
+            "i",
+            "in",
+            "is",
+            "of",
+            "the",
+            "to",
+            "what",
+            "when",
+            "where",
+            "why",
+            "with",
+        }
+    )
+
     def __init__(self, path: str | Path):
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -145,9 +169,13 @@ class Database:
             row = connection.execute("SELECT * FROM files WHERE id = ?", (file_id,)).fetchone()
         return dict(row)
 
-    @staticmethod
-    def _fts_query(query: str) -> str:
-        tokens = re.findall(r"[A-Za-z0-9_]+", query.lower())
+    @classmethod
+    def _fts_query(cls, query: str) -> str:
+        tokens = [
+            token
+            for token in re.findall(r"[A-Za-z0-9_]+", query.lower())
+            if token not in cls._fts_stopwords
+        ]
         return " OR ".join(f'"{token}"' for token in tokens)
 
     def search(

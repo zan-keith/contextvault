@@ -26,7 +26,14 @@ FastEmbed downloads the public embedding model on its first hybrid request. The 
 
 ```bash
 uv run python -m benchmarks.run --strategy fts
+uv run python -m benchmarks.run --strategy dense
 uv run python -m benchmarks.run --strategy hybrid
+
+# Basic-text diagnostic corpus
+uv run python -m benchmarks.run \
+  --corpus benchmarks/basic-text-corpus.json \
+  --queries benchmarks/basic-text-queries.json \
+  --strategy hybrid
 ```
 
 The checked-in baseline corpus and queries are intentionally small smoke data, not evidence of production accuracy. The latest local results are stored in `docs/baseline-results.json` and `docs/hybrid-baseline-results.json`; replace the corpus with a larger labelled set before drawing conclusions about embeddings or Jev.

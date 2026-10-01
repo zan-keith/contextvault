@@ -12,6 +12,9 @@ lint:
 benchmark:
 	uv run python -m benchmarks.run --strategy fts
 
+benchmark-dense:
+	uv run python -m benchmarks.run --strategy dense
+
 benchmark-hybrid:
 	uv run python -m benchmarks.run --strategy hybrid
 

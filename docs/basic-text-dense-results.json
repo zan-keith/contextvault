@@ -1,0 +1,120 @@
+{
+  "strategy": "dense",
+  "k": 5,
+  "queries": 7,
+  "hit_rate": 0.8571428571428571,
+  "precision_at_k": 0.7857142857142857,
+  "recall_at_k": 0.8571428571428571,
+  "mrr": 0.8571428571428571,
+  "no_answer_accuracy": 0,
+  "cases": [
+    {
+      "question": "How do we retry a payment after processor failure?",
+      "expected_files": [
+        "billing-retry-runbook.txt"
+      ],
+      "retrieved_files": [
+        "billing-retry-runbook.txt"
+      ],
+      "hit": true,
+      "no_answer": false,
+      "no_answer_correct": false,
+      "precision_at_k": 1.0,
+      "recall_at_k": 1.0,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "question": "What should happen to a card charge while the banking provider is offline?",
+      "expected_files": [
+        "billing-retry-runbook.txt"
+      ],
+      "retrieved_files": [
+        "billing-retry-runbook.txt"
+      ],
+      "hit": true,
+      "no_answer": false,
+      "no_answer_correct": false,
+      "precision_at_k": 1.0,
+      "recall_at_k": 1.0,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "question": "How do I renew encryption credentials for the public website?",
+      "expected_files": [
+        "web-tls-deployment.txt"
+      ],
+      "retrieved_files": [
+        "web-tls-deployment.txt",
+        "web-traffic-incident.txt"
+      ],
+      "hit": true,
+      "no_answer": false,
+      "no_answer_correct": false,
+      "precision_at_k": 0.5,
+      "recall_at_k": 1.0,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "question": "What support step helps a user regain access to their account?",
+      "expected_files": [
+        "identity-password-reset.txt"
+      ],
+      "retrieved_files": [
+        "identity-password-reset.txt"
+      ],
+      "hit": true,
+      "no_answer": false,
+      "no_answer_correct": false,
+      "precision_at_k": 1.0,
+      "recall_at_k": 1.0,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "question": "Can staff move unused holiday allowance into next year?",
+      "expected_files": [
+        "people-leave-policy.txt"
+      ],
+      "retrieved_files": [
+        "people-leave-policy.txt"
+      ],
+      "hit": true,
+      "no_answer": false,
+      "no_answer_correct": false,
+      "precision_at_k": 1.0,
+      "recall_at_k": 1.0,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "question": "How are failed charges handled?",
+      "expected_files": [
+        "billing-retry-runbook.txt"
+      ],
+      "retrieved_files": [
+        "billing-retry-runbook.txt"
+      ],
+      "hit": true,
+      "no_answer": false,
+      "no_answer_correct": false,
+      "precision_at_k": 1.0,
+      "recall_at_k": 1.0,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "question": "What is the recipe for sourdough bread?",
+      "expected_files": [],
+      "retrieved_files": [
+        "web-tls-deployment.txt",
+        "identity-password-reset.txt",
+        "billing-vendor-onboarding.txt",
+        "billing-retry-runbook.txt",
+        "people-leave-policy.txt"
+      ],
+      "hit": false,
+      "no_answer": true,
+      "no_answer_correct": false,
+      "precision_at_k": 0.0,
+      "recall_at_k": 0.0,
+      "reciprocal_rank": 0.0
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "exact-payment-retry",
+    "kind": "exact",
+    "question": "How do we retry a payment after processor failure?",
+    "product": "billing",
+    "version": "v1",
+    "document_type": "runbook",
+    "expected_files": [
+      "billing-retry-runbook.txt"
+    ]
+  },
+  {
+    "id": "paraphrase-payment-outage",
+    "kind": "paraphrase",
+    "question": "What should happen to a card charge while the banking provider is offline?",
+    "product": "billing",
+    "version": "v1",
+    "document_type": "runbook",
+    "expected_files": [
+      "billing-retry-runbook.txt"
+    ]
+  },
+  {
+    "id": "paraphrase-certificate",
+    "kind": "paraphrase",
+    "question": "How do I renew encryption credentials for the public website?",
+    "product": "web",
+    "version": "v2",
+    "document_type": "runbook",
+    "expected_files": [
+      "web-tls-deployment.txt"
+    ]
+  },
+  {
+    "id": "paraphrase-login",
+    "kind": "paraphrase",
+    "question": "What support step helps a user regain access to their account?",
+    "product": "identity",
+    "version": "v3",
+    "document_type": "runbook",
+    "expected_files": [
+      "identity-password-reset.txt"
+    ]
+  },
+  {
+    "id": "policy-question",
+    "kind": "paraphrase",
+    "question": "Can staff move unused holiday allowance into next year?",
+    "product": "people",
+    "version": "v1",
+    "document_type": "policy",
+    "expected_files": [
+      "people-leave-policy.txt"
+    ]
+  },
+  {
+    "id": "metadata-boundary",
+    "kind": "metadata",
+    "question": "How are failed charges handled?",
+    "product": "billing",
+    "version": "v1",
+    "document_type": "runbook",
+    "expected_files": [
+      "billing-retry-runbook.txt"
+    ]
+  },
+  {
+    "id": "no-answer",
+    "kind": "no-answer",
+    "question": "What is the recipe for sourdough bread?",
+    "expected_files": []
+  }
+]

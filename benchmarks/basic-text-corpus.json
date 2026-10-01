@@ -1,0 +1,65 @@
+[
+  {
+    "name": "billing-retry-runbook.txt",
+    "description": "Runbook for recovering declined charges when a payment processor is unavailable.",
+    "content": "If the payment processor is unavailable, place the failed charge in the retry queue. Retry it after the provider reports healthy status.",
+    "product": "billing",
+    "version": "v1",
+    "document_type": "runbook",
+    "status": "active"
+  },
+  {
+    "name": "billing-vendor-onboarding.txt",
+    "description": "Checklist for adding a new payment vendor.",
+    "content": "Before enabling a new payment vendor, verify the contract, tax records, settlement account, and test transaction.",
+    "product": "billing",
+    "version": "v1",
+    "document_type": "checklist",
+    "status": "active"
+  },
+  {
+    "name": "web-tls-deployment.txt",
+    "description": "Procedure for deploying a web TLS certificate.",
+    "content": "Generate a certificate signing request, obtain the TLS certificate, install the certificate chain, then test HTTPS renewal alerts.",
+    "product": "web",
+    "version": "v2",
+    "document_type": "runbook",
+    "status": "active"
+  },
+  {
+    "name": "web-traffic-incident.txt",
+    "description": "Incident response guide for a web service unable to accept traffic.",
+    "content": "When the web service cannot accept traffic, check load balancer health, application error rate, and recent deployment changes before rollback.",
+    "product": "web",
+    "version": "v2",
+    "document_type": "runbook",
+    "status": "active"
+  },
+  {
+    "name": "people-leave-policy.txt",
+    "description": "Employee leave and vacation policy.",
+    "content": "Employees may carry five unused vacation days into the next calendar year with manager approval. Remaining days expire on 31 March.",
+    "product": "people",
+    "version": "v1",
+    "document_type": "policy",
+    "status": "active"
+  },
+  {
+    "name": "identity-password-reset.txt",
+    "description": "Support procedure for account password recovery.",
+    "content": "If a customer cannot sign in, send the password reset link after confirming the account email address. Do not disclose whether an account exists.",
+    "product": "identity",
+    "version": "v3",
+    "document_type": "runbook",
+    "status": "active"
+  },
+  {
+    "name": "billing-retry-legacy.txt",
+    "description": "Retired payment retry process for the former gateway.",
+    "content": "For the retired gateway, support staff manually resubmit rejected charges once daily.",
+    "product": "billing",
+    "version": "v0",
+    "document_type": "runbook",
+    "status": "superseded"
+  }
+]

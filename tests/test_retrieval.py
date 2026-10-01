@@ -86,6 +86,21 @@ def test_search_can_filter_document_type(tmp_path):
     assert [result["name"] for result in results] == ["x200-troubleshooting.pdf"]
 
 
+def test_search_ignores_common_question_words_for_no_answer(tmp_path):
+    db = Database(tmp_path / "test.db")
+    db.create_file(
+        name="deployment.txt",
+        description="The deployment procedure",
+        content="The team deploys the service after review.",
+        product="web",
+        version="v1",
+        document_type="runbook",
+        status="active",
+    )
+
+    assert db.search("What is the recipe for sourdough bread?") == []
+
+
 def test_database_schema_is_initialised(tmp_path):
     db = Database(tmp_path / "test.db")
     with sqlite3.connect(db.path) as connection:

@@ -24,15 +24,25 @@ def run_benchmark(
     limit: int = 5,
     strategy: str = "fts",
 ) -> dict[str, Any]:
-    if strategy not in {"fts", "hybrid"}:
-        raise ValueError("strategy must be 'fts' or 'hybrid'")
+    if strategy not in {"fts", "dense", "hybrid"}:
+        raise ValueError("strategy must be 'fts', 'dense', or 'hybrid'")
     corpus = load_json(corpus_path)
     queries = load_json(queries_path)
     with tempfile.TemporaryDirectory(prefix="contextvault-benchmark-") as directory:
         db = Database(Path(directory) / "benchmark.db")
         for document in corpus:
             db.create_file(**document)
-        hybrid_retriever = HybridRetriever(db, FastEmbedProvider()) if strategy == "hybrid" else None
+        if strategy == "fts":
+            hybrid_retriever = None
+        elif strategy == "dense":
+            hybrid_retriever = HybridRetriever(
+                db,
+                FastEmbedProvider(),
+                semantic_weight=1.0,
+                min_semantic_score=0.0,
+            )
+        else:
+            hybrid_retriever = HybridRetriever(db, FastEmbedProvider())
 
         rows = []
         for case in queries:
@@ -92,7 +102,7 @@ def main() -> None:
     parser.add_argument("--corpus", type=Path, default=ROOT / "corpus.json")
     parser.add_argument("--queries", type=Path, default=ROOT / "queries.json")
     parser.add_argument("--limit", type=int, default=5)
-    parser.add_argument("--strategy", choices=("fts", "hybrid"), default="fts")
+    parser.add_argument("--strategy", choices=("fts", "dense", "hybrid"), default="fts")
     args = parser.parse_args()
     print(json.dumps(run_benchmark(args.corpus, args.queries, args.limit, args.strategy), indent=2))
 
