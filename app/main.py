@@ -7,9 +7,18 @@ from typing import Literal
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile, status
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from app.answers import (
+    GenerationProvider,
+    GenerationProviderError,
+    GenerationUnavailableError,
+    build_evidence_manifest,
+    generation_provider_from_environment,
+    validate_generated_answer,
+)
 from app.db import Database
 from app.decisions import DecisionProvider, provider_from_environment
 from app.extract import UnsupportedDocument, extract_text
+from app.recovery import DatabaseRecoverySearch, answer_with_recovery
 from app.retrieval import EmbeddingProvider, FastEmbedProvider, HybridRetriever
 from app.storage import FileStore
 
@@ -44,10 +53,15 @@ class QueryCreate(BaseModel):
         return value
 
 
+class RecoveryQueryCreate(QueryCreate):
+    max_rounds: int = Field(default=2, ge=1, le=5)
+
+
 def create_app(
     database_path: str | Path | None = None,
     decision_provider: DecisionProvider | None = None,
     embedding_provider: EmbeddingProvider | None = None,
+    generation_provider: GenerationProvider | None = None,
 ) -> FastAPI:
     app = FastAPI(title="ContextVault", version="0.1.0")
     db_path = database_path or os.getenv("CONTEXTVAULT_DB", "contextvault.db")
@@ -57,6 +71,13 @@ def create_app(
         storage_root = str(Path(db_path).with_suffix(".files"))
     app.state.file_store = FileStore(storage_root)
     app.state.decision_provider = decision_provider or provider_from_environment()
+    app.state.generation_provider = generation_provider or generation_provider_from_environment()
+    try:
+        app.state.max_upload_bytes = int(os.getenv("CONTEXTVAULT_MAX_UPLOAD_BYTES", str(20 * 1024 * 1024)))
+    except ValueError as exc:
+        raise ValueError("CONTEXTVAULT_MAX_UPLOAD_BYTES must be an integer") from exc
+    if app.state.max_upload_bytes < 1:
+        raise ValueError("CONTEXTVAULT_MAX_UPLOAD_BYTES must be positive")
     embedder = embedding_provider or FastEmbedProvider()
     app.state.hybrid_retriever = HybridRetriever(app.state.database, embedder)
     app.state.evidence_retriever = HybridRetriever(
@@ -77,13 +98,20 @@ def create_app(
     def evidence_retriever(request: Request) -> HybridRetriever:
         return request.app.state.evidence_retriever
 
+    def get_generation_provider(request: Request) -> GenerationProvider:
+        return request.app.state.generation_provider
+
+    def public_file(record: dict) -> dict:
+        """Do not expose server-local content-addressed storage paths via the API."""
+        return {key: value for key, value in record.items() if key != "source_uri"}
+
     @app.get("/health")
     def health() -> dict[str, str]:
         return {"status": "ok"}
 
     @app.post("/files", status_code=status.HTTP_201_CREATED)
     def create_file(payload: FileCreate, db: Database = Depends(database)) -> dict:
-        return db.create_file(**payload.model_dump())
+        return public_file(db.create_file(**payload.model_dump()))
 
     @app.post("/files/upload", status_code=status.HTTP_201_CREATED)
     async def upload_file(
@@ -104,7 +132,22 @@ def create_app(
                 detail="Only .txt, .md, .csv, .json, and .pdf files are supported in this slice",
             )
 
+        content_length = request.headers.get("content-length")
+        try:
+            declared_size = int(content_length) if content_length is not None else None
+        except ValueError as exc:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid Content-Length header") from exc
+        if declared_size is not None and declared_size > request.app.state.max_upload_bytes:
+            raise HTTPException(
+                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                detail=f"Upload exceeds the maximum size of {request.app.state.max_upload_bytes} bytes",
+            )
         raw_content = await file.read()
+        if len(raw_content) > request.app.state.max_upload_bytes:
+            raise HTTPException(
+                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                detail=f"Upload exceeds the maximum size of {request.app.state.max_upload_bytes} bytes",
+            )
         try:
             content = extract_text(file.filename or "uploaded-file", raw_content)
         except UnsupportedDocument as exc:
@@ -123,10 +166,12 @@ def create_app(
             document_type=document_type,
             status=file_status,
         )
-        return db.create_file(
-            **payload.model_dump(),
-            **stored,
-            media_type=file.content_type,
+        return public_file(
+            db.create_file(
+                **payload.model_dump(),
+                **stored,
+                media_type=file.content_type,
+            )
         )
 
     @app.get("/files")
@@ -200,6 +245,169 @@ def create_app(
             },
             "results": visible_results,
         }
+
+    @app.post("/answers")
+    async def answer(
+        payload: QueryCreate,
+        provider: DecisionProvider = Depends(get_decision_provider),
+        generator: GenerationProvider = Depends(get_generation_provider),
+        evidence: HybridRetriever = Depends(evidence_retriever),
+        db: Database = Depends(database),
+    ) -> dict:
+        if payload.strategy == "hybrid":
+            candidates = evidence.search(
+                payload.question,
+                product=payload.product,
+                version=payload.version,
+                document_type=payload.document_type,
+                limit=payload.limit,
+            )
+        else:
+            candidates = db.search(
+                payload.question,
+                product=payload.product,
+                version=payload.version,
+                document_type=payload.document_type,
+                limit=payload.limit,
+            )
+
+        try:
+            decision = await provider.evaluate(payload.question, candidates)
+        except Exception:  # noqa: BLE001 - answer generation must fail closed
+            return {
+                "query": payload.question,
+                "answer": None,
+                "abstention": {
+                    "reason": "decision_provider_error",
+                    "action": "Review the evidence or try again later.",
+                },
+            }
+
+        outcome = getattr(decision, "outcome", None)
+        trusted = getattr(decision, "trusted", False)
+        degraded = getattr(decision, "degraded", False)
+        conflict_probability = getattr(decision, "conflict_probability", None)
+        if (
+            not candidates
+            or outcome != "answerable"
+            or not trusted
+            or degraded
+            or (conflict_probability is not None and conflict_probability >= 0.7)
+        ):
+            reason = "empty_evidence" if not candidates else str(outcome or "invalid_decision")
+            if not trusted and outcome == "answerable":
+                reason = "untrusted_decision"
+            elif degraded:
+                reason = "degraded_decision"
+            elif conflict_probability is not None and conflict_probability >= 0.7:
+                reason = "conflicting_evidence"
+            return {
+                "query": payload.question,
+                "answer": None,
+                "abstention": {
+                    "reason": reason,
+                    "action": "Review the evidence before relying on an answer.",
+                },
+            }
+
+        manifest = build_evidence_manifest(candidates)
+        try:
+            generated = await generator.generate(payload.question, manifest)
+            validated = validate_generated_answer(generated, manifest)
+        except GenerationUnavailableError:
+            return {
+                "query": payload.question,
+                "answer": None,
+                "abstention": {
+                    "reason": "generation_provider_unavailable",
+                    "action": "Configure an answer provider or review the evidence manually.",
+                },
+            }
+        except GenerationProviderError:
+            return {
+                "query": payload.question,
+                "answer": None,
+                "abstention": {
+                    "reason": "generation_provider_error",
+                    "action": "The answer provider failed; review the evidence or try again later.",
+                },
+            }
+        except ValueError:
+            return {
+                "query": payload.question,
+                "answer": None,
+                "abstention": {
+                    "reason": "invalid_generated_answer",
+                    "action": "Review the evidence and answer manually.",
+                },
+            }
+        except Exception:  # noqa: BLE001 - unexpected generation errors still fail closed
+            return {
+                "query": payload.question,
+                "answer": None,
+                "abstention": {
+                    "reason": "invalid_generated_answer",
+                    "action": "Review the evidence and answer manually.",
+                },
+            }
+        return {
+            "query": payload.question,
+            "answer": {"text": validated.answer, "claims": [claim.model_dump() for claim in validated.claims]},
+            "generation": {
+                "provider": validated.provider,
+                "provider_version": validated.provider_version,
+                "latency_ms": validated.latency_ms,
+                "input_tokens": validated.input_tokens,
+                "output_tokens": validated.output_tokens,
+                "cost_usd": validated.cost_usd,
+            },
+            "abstention": None,
+        }
+
+    @app.post("/answers/recovery")
+    async def answer_with_recovery_endpoint(
+        payload: RecoveryQueryCreate,
+        provider: DecisionProvider = Depends(get_decision_provider),
+        generator: GenerationProvider = Depends(get_generation_provider),
+        evidence: HybridRetriever = Depends(evidence_retriever),
+        db: Database = Depends(database),
+    ) -> dict:
+        """Jev-gated answers with targeted recovery search after a rejection.
+
+        Unlike ``POST /answers`` this endpoint may re-run the decision gate after
+        adding recovered candidates, so a single missing fact becomes a targeted
+        search instead of an abstention. Generation is still gated on a trusted,
+        non-degraded, conflict-free answerable decision and only ever sees the
+        server-built evidence manifest.
+        """
+        if payload.strategy == "hybrid":
+            candidates = evidence.search(
+                payload.question,
+                product=payload.product,
+                version=payload.version,
+                document_type=payload.document_type,
+                limit=payload.limit,
+            )
+        else:
+            candidates = db.search(
+                payload.question,
+                product=payload.product,
+                version=payload.version,
+                document_type=payload.document_type,
+                limit=payload.limit,
+            )
+        return await answer_with_recovery(
+            payload.question,
+            candidates,
+            decision_provider=provider,
+            generation_provider=generator,
+            recovery_search=DatabaseRecoverySearch(db),
+            product=payload.product,
+            version=payload.version,
+            document_type=payload.document_type,
+            limit=payload.limit,
+            max_rounds=payload.max_rounds,
+        )
 
     return app
 

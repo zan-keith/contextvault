@@ -1,0 +1,5 @@
+# Benchmark runs may contain source text snippets, prompts, provider telemetry,
+# costs, and machine-specific paths. Keep generated artifacts local by default.
+*
+!.gitignore
+!README.md

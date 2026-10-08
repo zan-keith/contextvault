@@ -5,6 +5,7 @@ import os
 from collections.abc import Sequence
 from typing import Protocol
 
+import numpy as np
 from fastembed import TextEmbedding
 
 from app.db import Database
@@ -140,10 +141,19 @@ class HybridRetriever:
                 }
             )
 
+        matrix = np.asarray([cached_vectors[int(candidate["chunk_id"])] for candidate in candidates], dtype=float)
+        query_array = np.asarray(query_vector, dtype=float)
+        norms = np.linalg.norm(matrix, axis=1) * np.linalg.norm(query_array)
+        semantic_scores = np.divide(
+            matrix @ query_array,
+            norms,
+            out=np.zeros(len(candidates), dtype=float),
+            where=norms != 0,
+        )
+
         results = []
-        for candidate in candidates:
-            vector = cached_vectors[int(candidate["chunk_id"])]
-            semantic_score = max(0.0, _cosine(query_vector, vector))
+        for candidate, raw_semantic_score in zip(candidates, semantic_scores):
+            semantic_score = max(0.0, float(raw_semantic_score))
             rank = lexical_rank.get(candidate["chunk_id"])
             lexical_score = 1 / rank if rank else 0.0
             if lexical_score == 0.0 and semantic_score < self.min_semantic_score:

@@ -10,3 +10,8 @@ __pycache__/
 *.egg-info/
 .env
 .DS_Store
+# Generated benchmark artifacts may include source snippets and provider telemetry.
+# The directory's README and .gitignore are intentionally tracked.
+benchmark-results/*
+!benchmark-results/.gitignore
+!benchmark-results/README.md

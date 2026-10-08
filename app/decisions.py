@@ -44,6 +44,8 @@ class EvidenceDecision:
     input_tokens: int | None = None
     cost_usd: float | None = None
     requirements: tuple[RequirementDecision, ...] | list[RequirementDecision] = ()
+    trusted: bool = False
+    degraded: bool = False
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "reasons", tuple(self.reasons))
@@ -190,10 +192,10 @@ class JevDecisionProvider:
                 "questions": {
                     "answerable": {
                         "type": "noul",
-                        "instructions": "Does at least one candidate passage directly support an answer to the question?",
+                        "instructions": "Does the complete set of candidate passages contain enough direct, applicable evidence for a diligent reader to answer the question without outside knowledge?",
                         "criteria": {
-                            "true": "The candidates contain direct, applicable evidence.",
-                            "false": "The candidates are missing, irrelevant, or insufficient.",
+                            "true": "All facts and multi-hop links needed for a definitive answer are contained in the candidates.",
+                            "false": "At least one required fact or link is missing, irrelevant, contradictory, or insufficient.",
                         },
                     },
                     "conflict": {
@@ -250,6 +252,7 @@ class JevDecisionProvider:
             latency_ms=latency_ms,
             input_tokens=input_tokens,
             cost_usd=cost_usd,
+            trusted=True,
         )
 
 
@@ -267,6 +270,8 @@ class FallbackDecisionProvider:
                 fallback_result,
                 provider=f"{fallback_result.provider}-fallback",
                 reasons=[f"Primary decision provider unavailable: {type(exc).__name__}.", *fallback_result.reasons],
+                trusted=False,
+                degraded=True,
             )
 
 

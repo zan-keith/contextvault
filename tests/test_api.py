@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Any
 
 from fastapi.testclient import TestClient
@@ -40,6 +39,34 @@ class RejectingDecisionProvider:
             reasons=["test rejection"],
             provider="jev",
         )
+
+
+def test_upload_response_does_not_expose_internal_storage_path(tmp_path):
+    client = TestClient(create_app(tmp_path / "api.db"))
+
+    response = client.post(
+        "/files/upload",
+        files={"file": ("manual.txt", b"Inspect the vacuum sensor.", "text/plain")},
+        data={"description": "Manual", "document_type": "maintenance"},
+    )
+
+    assert response.status_code == 201
+    assert response.json()["sha256"]
+    assert "source_uri" not in response.json()
+
+
+def test_upload_rejects_files_larger_than_configured_limit(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONTEXTVAULT_MAX_UPLOAD_BYTES", "10")
+    client = TestClient(create_app(tmp_path / "api.db"))
+
+    response = client.post(
+        "/files/upload",
+        files={"file": ("manual.txt", b"12345678901", "text/plain")},
+        data={"description": "Manual", "document_type": "maintenance"},
+    )
+
+    assert response.status_code == 413
+    assert "maximum size" in response.json()["detail"]
 
 
 def test_file_ingestion_and_query_round_trip(tmp_path):
@@ -165,7 +192,8 @@ def test_text_file_upload_and_query(tmp_path):
     assert response.status_code == 201
     body = response.json()
     assert body["name"] == "x200-calibration.txt"
-    assert Path(body["source_uri"]).read_bytes() == b"If calibration fails, inspect the vacuum sensor before retrying."
+    stored = next((tmp_path / "upload.files").glob("*.txt"))
+    assert stored.read_bytes() == b"If calibration fails, inspect the vacuum sensor before retrying."
 
     response = client.post(
         "/queries",
@@ -219,8 +247,8 @@ def test_text_pdf_upload_is_extracted_and_stored(tmp_path):
     )
 
     assert response.status_code == 201
-    body = response.json()
-    assert Path(body["source_uri"]).read_bytes().startswith(b"%PDF-1.4")
+    stored = next((tmp_path / "pdf.files").glob("*.pdf"))
+    assert stored.read_bytes().startswith(b"%PDF-1.4")
 
     response = client.post("/queries", json={"question": "What is the calibration procedure?"})
 

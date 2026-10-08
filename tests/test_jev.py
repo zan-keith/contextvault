@@ -30,6 +30,7 @@ def test_jev_provider_builds_typed_decision_request_without_network():
     assert result.confidence == 0.91
     assert provider.request_body["model"] == "typesafe/jev-1.13"
     assert provider.request_body["questions"]["answerable"]["type"] == "noul"
+    assert "complete set" in provider.request_body["questions"]["answerable"]["instructions"]
 
 
 def test_jev_provider_exposes_probabilities_and_honours_configured_thresholds():

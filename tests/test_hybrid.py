@@ -1,5 +1,10 @@
 from app.db import Database
-from app.retrieval import FastEmbedProvider, HybridRetriever
+from app.retrieval import FastEmbedProvider, HybridRetriever, _cosine
+
+
+def test_cosine_matches_known_vectors():
+    assert _cosine([3.0, 4.0], [3.0, 4.0]) == 1.0
+    assert _cosine([1.0, 0.0], [0.0, 1.0]) == 0.0
 
 
 class StaticEmbedder:

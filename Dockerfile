@@ -15,7 +15,12 @@ RUN pip install --no-cache-dir uv \
 COPY app ./app
 COPY benchmarks ./benchmarks
 
-RUN mkdir -p /data/files
+RUN addgroup --system contextvault \
+    && adduser --system --ingroup contextvault --no-create-home contextvault \
+    && mkdir -p /data/files \
+    && chown -R contextvault:contextvault /app /data
+
+USER contextvault
 
 EXPOSE 8000
 

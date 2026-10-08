@@ -2,7 +2,7 @@ services:
   contextvault:
     build: .
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     environment:
       CONTEXTVAULT_DB: /data/contextvault.db
       CONTEXTVAULT_STORAGE_DIR: /data/files

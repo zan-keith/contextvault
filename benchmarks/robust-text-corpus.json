@@ -27,6 +27,15 @@
     "status": "superseded"
   },
   {
+    "name": "finance-capture-retry-window.txt",
+    "description": "Retry schedule for queued card captures after a network outage.",
+    "content": "Queued card captures are retried every five minutes for up to two hours. A capture still queued after two hours is escalated to the payments on-call engineer.",
+    "product": "finance",
+    "version": "v2",
+    "document_type": "runbook",
+    "status": "active"
+  },
+  {
     "name": "web-certificate-rotation.txt",
     "description": "Procedure for rotating a public HTTPS certificate.",
     "content": "Create a certificate signing request, obtain the replacement certificate, install the full chain, and verify the renewal monitor.",
@@ -45,9 +54,27 @@
     "status": "active"
   },
   {
+    "name": "web-canary-deploy.txt",
+    "description": "Canary deployment procedure for the public website.",
+    "content": "Deploy new website releases to the canary environment first, monitor the error rate for fifteen minutes, and promote to production only when the canary error rate matches the baseline.",
+    "product": "web",
+    "version": "v5",
+    "document_type": "runbook",
+    "status": "active"
+  },
+  {
     "name": "identity-mfa-recovery.txt",
     "description": "Account recovery for a lost multi-factor device.",
     "content": "After verifying identity through the approved recovery channel, remove the lost authenticator and require enrollment of a new factor at the next sign-in.",
+    "product": "identity",
+    "version": "v4",
+    "document_type": "runbook",
+    "status": "active"
+  },
+  {
+    "name": "identity-password-reset.txt",
+    "description": "Password reset procedure for locked accounts.",
+    "content": "A user who cannot sign in may reset their password through the self-service portal. The reset link is valid for sixty minutes and can be used only once.",
     "product": "identity",
     "version": "v4",
     "document_type": "runbook",
@@ -63,9 +90,27 @@
     "status": "active"
   },
   {
+    "name": "people-leave-request.txt",
+    "description": "How employees request annual leave.",
+    "content": "Submit leave requests through the people portal at least five working days before the first day of leave. Managers approve or decline requests within two working days.",
+    "product": "people",
+    "version": "v2",
+    "document_type": "policy",
+    "status": "active"
+  },
+  {
     "name": "shipping-missing-parcel.txt",
     "description": "Investigation steps for a shipment not delivered to a customer.",
     "content": "For a parcel reported missing, verify the tracking scan history, delivery address, proof of delivery, and carrier exception status before opening a claim.",
+    "product": "shipping",
+    "version": "v3",
+    "document_type": "runbook",
+    "status": "active"
+  },
+  {
+    "name": "shipping-lost-parcel-claim.txt",
+    "description": "Claim procedure for a parcel confirmed lost by the carrier.",
+    "content": "When the carrier confirms a parcel is lost, open a claim within fourteen days and attach the tracking history, proof of purchase, and delivery address. Compensation is limited to the declared value of the parcel.",
     "product": "shipping",
     "version": "v3",
     "document_type": "runbook",
@@ -78,6 +123,15 @@
     "product": "data",
     "version": "v1",
     "document_type": "policy",
+    "status": "active"
+  },
+  {
+    "name": "data-backup-schedule.txt",
+    "description": "Backup schedule for application databases.",
+    "content": "Application databases are backed up nightly at 02:00 UTC. Full backups run on Sundays and incremental backups run on all other days. Backups are retained for thirty days.",
+    "product": "data",
+    "version": "v1",
+    "document_type": "runbook",
     "status": "active"
   },
   {

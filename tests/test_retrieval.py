@@ -1,6 +1,73 @@
 import sqlite3
+import time
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
+from threading import Lock
 
 from app.db import Database
+
+
+def test_database_serializes_write_transactions(tmp_path):
+    db = Database(tmp_path / "serialized.db")
+    original_connect = db._connect
+    state_lock = Lock()
+    active_writes = 0
+    maximum_active_writes = 0
+
+    @contextmanager
+    def tracked_connect():
+        nonlocal active_writes, maximum_active_writes
+        with original_connect() as connection:
+            with state_lock:
+                active_writes += 1
+                maximum_active_writes = max(maximum_active_writes, active_writes)
+            try:
+                time.sleep(0.01)
+                yield connection
+            finally:
+                with state_lock:
+                    active_writes -= 1
+
+    db._connect = tracked_connect
+
+    def create(index):
+        return db.create_file(
+            name=f"serialized-{index}.txt",
+            description="Serialized fixture",
+            content="The deployment procedure is safe to repeat.",
+            product="test",
+            version="v1",
+            document_type="runbook",
+            status="active",
+        )
+
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        list(executor.map(create, range(8)))
+
+    assert maximum_active_writes == 1
+
+
+def test_concurrent_ingestion_does_not_fail_on_sqlite_writer_contention(tmp_path):
+    db = Database(tmp_path / "concurrent.db")
+
+    with db._connect() as connection:
+        assert connection.execute("PRAGMA busy_timeout").fetchone()[0] >= 30_000
+
+    def create(index):
+        return db.create_file(
+            name=f"concurrent-{index}.txt",
+            description="Concurrent fixture",
+            content="The deployment procedure is safe to repeat.",
+            product="test",
+            version="v1",
+            document_type="runbook",
+            status="active",
+        )
+
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        created = list(executor.map(create, range(12)))
+
+    assert len(created) == 12
 
 
 def test_search_returns_relevant_active_file(tmp_path):

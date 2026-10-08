@@ -60,14 +60,11 @@ The flat sweep is a limitation: all observed answerability probabilities were we
 
 ## Raw artifacts
 
-- [FTS](robust-text-fts-results.json)
-- [Dense](robust-text-dense-results.json)
-- [Hybrid](robust-text-hybrid-results.json)
-- [Dense + local rules](robust-text-dense-rules-results.json)
-- [Dense + live Jev](robust-text-dense-jev-results.json)
-- [Hybrid + local rules](robust-text-hybrid-rules-results.json)
-- [Hybrid + live Jev](robust-text-hybrid-jev-results.json)
-- [Hybrid + Jev threshold sweep](robust-text-hybrid-jev-thresholds.json)
+Raw artifacts are generated locally under `benchmark-results/` and ignored by
+Git because they can retain source passages, provider telemetry, and host
+metadata. This document retains only the reviewed summary above. Re-run the
+commands below to regenerate an artifact; do not force-add it without redaction
+review.
 
 ## Reproduce
 

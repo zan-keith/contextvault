@@ -124,8 +124,8 @@
     "expected_outcome": "review"
   },
   {
-    "id": "retry-count-not-specified",
-    "question": "How many times should the system retry a failed card capture before abandoning it?",
+    "id": "capture-limit-not-specified",
+    "question": "What is the maximum amount that can be captured in a single card transaction?",
     "product": "finance",
     "version": "v2",
     "document_type": "runbook",
@@ -133,8 +133,8 @@
     "expected_outcome": "insufficient_evidence"
   },
   {
-    "id": "parcel-compensation-not-specified",
-    "question": "What monetary compensation must be paid when a customer reports a missing parcel?",
+    "id": "parcel-delay-compensation-not-specified",
+    "question": "What monetary compensation must be paid when a parcel arrives two days late?",
     "product": "shipping",
     "version": "v3",
     "document_type": "runbook",
@@ -155,6 +155,152 @@
     "question": "How many hours after identity verification will a user regain account access?",
     "product": "identity",
     "version": "v4",
+    "document_type": "runbook",
+    "expected_files": [],
+    "expected_outcome": "insufficient_evidence"
+  },
+  {
+    "id": "capture-retry-count",
+    "question": "How many times and for how long does the system retry a failed card capture before escalating it?",
+    "product": "finance",
+    "version": "v2",
+    "document_type": "runbook",
+    "expected_files": [
+      "finance-capture-outage.txt",
+      "finance-capture-retry-window.txt"
+    ],
+    "expected_outcome": "answerable"
+  },
+  {
+    "id": "capture-retry-escalation-only",
+    "question": "Who is a queued card capture escalated to after two hours?",
+    "product": "finance",
+    "version": "v2",
+    "document_type": "runbook",
+    "expected_files": [
+      "finance-capture-retry-window.txt"
+    ],
+    "expected_outcome": "answerable"
+  },
+  {
+    "id": "leave-request-lead-time",
+    "question": "How far in advance must staff submit an annual leave request?",
+    "product": "people",
+    "version": "v2",
+    "document_type": "policy",
+    "expected_files": [
+      "people-leave-request.txt"
+    ],
+    "expected_outcome": "answerable"
+  },
+  {
+    "id": "leave-approval-time",
+    "question": "Within how many working days must a manager approve or decline a leave request?",
+    "product": "people",
+    "version": "v2",
+    "document_type": "policy",
+    "expected_files": [
+      "people-leave-request.txt"
+    ],
+    "expected_outcome": "answerable"
+  },
+  {
+    "id": "database-backup-schedule",
+    "question": "When are application databases backed up and how long are backups kept?",
+    "product": "data",
+    "version": "v1",
+    "document_type": "runbook",
+    "expected_files": [
+      "data-backup-schedule.txt"
+    ],
+    "expected_outcome": "answerable"
+  },
+  {
+    "id": "lost-parcel-compensation",
+    "question": "What compensation is paid when the carrier confirms a parcel is lost?",
+    "product": "shipping",
+    "version": "v3",
+    "document_type": "runbook",
+    "expected_files": [
+      "shipping-lost-parcel-claim.txt"
+    ],
+    "expected_outcome": "answerable"
+  },
+  {
+    "id": "lost-parcel-claim-deadline",
+    "question": "Within how many days must a claim be opened after the carrier confirms a parcel is lost?",
+    "product": "shipping",
+    "version": "v3",
+    "document_type": "runbook",
+    "expected_files": [
+      "shipping-lost-parcel-claim.txt"
+    ],
+    "expected_outcome": "answerable"
+  },
+  {
+    "id": "canary-promotion",
+    "question": "When may a new website release be promoted from the canary environment to production?",
+    "product": "web",
+    "version": "v5",
+    "document_type": "runbook",
+    "expected_files": [
+      "web-canary-deploy.txt"
+    ],
+    "expected_outcome": "answerable"
+  },
+  {
+    "id": "password-reset-link-validity",
+    "question": "How long is a self-service password reset link valid?",
+    "product": "identity",
+    "version": "v4",
+    "document_type": "runbook",
+    "expected_files": [
+      "identity-password-reset.txt"
+    ],
+    "expected_outcome": "answerable"
+  },
+  {
+    "id": "sourdough-oven-temperature",
+    "question": "At what temperature should sourdough bread be baked?",
+    "expected_files": [],
+    "expected_outcome": "insufficient_evidence"
+  },
+  {
+    "id": "finance-salary-question",
+    "question": "What is the average engineer salary in the finance product team?",
+    "product": "finance",
+    "version": "v2",
+    "document_type": "runbook",
+    "expected_files": [],
+    "expected_outcome": "insufficient_evidence"
+  },
+  {
+    "id": "log-retention-legal-hold-exception",
+    "question": "Under what condition are application access logs kept beyond ninety days?",
+    "product": "data",
+    "version": "v1",
+    "document_type": "policy",
+    "expected_files": [
+      "data-access-log-retention.txt"
+    ],
+    "expected_outcome": "answerable"
+  },
+  {
+    "id": "mfa-new-device-enrolment",
+    "question": "When must a user enrol a new factor after recovering a lost authenticator?",
+    "product": "identity",
+    "version": "v4",
+    "document_type": "runbook",
+    "expected_files": [
+      "identity-mfa-recovery.txt"
+    ],
+    "expected_outcome": "answerable"
+  },
+  {
+    "id": "edge-router-second-restart",
+    "question": "What should we do if the edge router still stops forwarding traffic after one restart?",
+    "product": "edge",
+    "version": "v1",
     "document_type": "runbook",
     "expected_files": [],
     "expected_outcome": "insufficient_evidence"
